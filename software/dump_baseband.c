@@ -204,16 +204,20 @@ size_t write_header(FILE *file, uint64_t *chans, uint64_t *coeffs, uint64_t vers
     uint64_t elevation = 0; // IRL read gps time with lbtools
     #define FH0SIZE 9
     uint64_t file_header0[FH0SIZE] = {
-        to_big_endian(header_bytes),     // 1
+        to_big_endian(header_bytes),     // 1, the number of bytes in the header including the bytes in header_bytes
         // TODO: Escape sequence (zeros), to distinguish from old format without version number
-        to_big_endian(version),          // 2
-        to_big_endian(bytes_per_packet), // 3
-        to_big_endian(lenchans),         // 4
-        to_big_endian(spec_per_packet),  // 5
-        to_big_endian(bits),             // 6
-        to_big_endian(have_gps),         // 7
-        to_big_endian(gps_week),         // 8
-        to_big_endian(gps_time)          // 9         
+        to_big_endian(version),          // 3, the version number of the header
+        to_big_endian(bytes_per_packet), // 4, the nuber of bytes in the payload of each UDP packet
+        to_big_endian(lenchans),         // 5, number of frequency channels, both hardware channels 
+        to_big_endian(spec_per_packet),  // 6, number of spectra per packet
+        to_big_endian(bits),             // 7, number of bits quantized 1 or 4
+        // sampling rate (MHz) 250       // 8, ADC sampling rate in MHz
+        // FFT frame size (4096)         // 9, FFT frame size, number of time-domain samples going into each FFT
+        // station ID                    // 10, station ID, read from config.ini
+        to_big_endian(have_gps),         // 11, binary whether there is a GPS
+        to_big_endian(gps_week),         // 12, 
+        to_big_endian(gps_time)          // 13, GPS time in seconds
+        // GPS time nanoseconds          // 14, GPS time in nanoseconds
     };
     size_t header_bytes_written = 0;
     size_t elements_written = fwrite(file_header0, sizeof(uint64_t), FH0SIZE, file);
@@ -224,9 +228,9 @@ size_t write_header(FILE *file, uint64_t *chans, uint64_t *coeffs, uint64_t vers
     header_bytes_written += elements_written * sizeof(uint64_t);
     #define FH1SIZE 3
     double file_header1[FH1SIZE] = {
-        to_big_endian_double(lattitude), // 10
-        to_big_endian_double(longitude), // 11
-        to_big_endian_double(elevation), // 12
+        to_big_endian_double(lattitude), // 15
+        to_big_endian_double(longitude), // 16
+        to_big_endian_double(elevation), // 17
     };
     elements_written = fwrite(file_header1, sizeof(double), FH1SIZE, file);
     if (elements_written != FH1SIZE) {
@@ -234,6 +238,7 @@ size_t write_header(FILE *file, uint64_t *chans, uint64_t *coeffs, uint64_t vers
     }
     #undef FH1SIZE
     header_bytes_written += elements_written * sizeof(double);
+    // Write number of channels 
     elements_written = fwrite(chans, sizeof(uint64_t), (size_t)lenchans, file);
     if (elements_written != (size_t)lenchans) {
         perror("Error writing header-chans to file");
@@ -353,7 +358,7 @@ int main() {
         char timestamp[20]; // big enough to hold the timestamp as a string
         time_t raw_time;
         raw_time = time(NULL); // Get current time
-        snprintf(timestamp, sizeof(timestamp), "%ld", (long)raw_time); // Convert the time to a string
+        snprintf(timestamp, sizeof(timestamp), "%ld", (long)raw_time); // Convert the time to a string, typecase (long) gives seconds
         char sliced_timestamp[6]; // Slice of first 5 chars (+1 for null pointer) of ctime timestamp
         strncpy(sliced_timestamp, timestamp, 5);
         sliced_timestamp[5] = '\0'; // Set null pointer at end of array
