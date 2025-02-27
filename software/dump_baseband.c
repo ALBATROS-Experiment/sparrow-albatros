@@ -205,6 +205,7 @@ size_t write_header(FILE *file, uint64_t *chans, uint64_t *coeffs, uint64_t vers
     #define FH0SIZE 9
     uint64_t file_header0[FH0SIZE] = {
         to_big_endian(header_bytes),     // 1
+        // TODO: Escape sequence (zeros), to distinguish from old format without version number
         to_big_endian(version),          // 2
         to_big_endian(bytes_per_packet), // 3
         to_big_endian(lenchans),         // 4
