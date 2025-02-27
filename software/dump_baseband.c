@@ -197,6 +197,7 @@ size_t write_header(FILE *file, uint64_t *chans, uint64_t *coeffs, uint64_t vers
     // Total number of bytes in header, including bytes for header_bytes
     uint64_t header_bytes = (12 + 2 * lenchans) * sizeof(uint64_t); // 2xlenchans for coeffs
     // TODO: Read LeoBodnar, for now, dummy 
+    // TODO: Version number is hard coded, major minor
     uint64_t gps_week  = 0; // This is set to zero for whatever reason
     uint64_t gps_time  = 0; // IRL read gps time with lbtools
     uint64_t lattitude = 0; // IRL read gps time with lbtools
@@ -206,18 +207,17 @@ size_t write_header(FILE *file, uint64_t *chans, uint64_t *coeffs, uint64_t vers
     uint64_t file_header0[FH0SIZE] = {
         to_big_endian(header_bytes),     // 1, the number of bytes in the header including the bytes in header_bytes
         // TODO: Escape sequence (zeros), to distinguish from old format without version number
-        to_big_endian(version),          // 3, the version number of the header
+        to_big_endian(version),          // 3, the version number of the header [4 bytes major, 4 byte minor]
         to_big_endian(bytes_per_packet), // 4, the nuber of bytes in the payload of each UDP packet
         to_big_endian(lenchans),         // 5, number of frequency channels, both hardware channels 
         to_big_endian(spec_per_packet),  // 6, number of spectra per packet
         to_big_endian(bits),             // 7, number of bits quantized 1 or 4
-        // sampling rate (MHz) 250       // 8, ADC sampling rate in MHz
-        // FFT frame size (4096)         // 9, FFT frame size, number of time-domain samples going into each FFT
-        // station ID                    // 10, station ID, read from config.ini
+        // TODO: sample_rate (MHz) 250   // 8, ADC sampling rate in MHz
+        // fft_frame_len (4096)          // 9, FFT frame size, number of time-domain samples going into each FFT
+        // station_id                    // 10, station ID, read from config.ini, can default to 0
         to_big_endian(have_gps),         // 11, binary whether there is a GPS
-        to_big_endian(gps_week),         // 12, 
-        to_big_endian(gps_time)          // 13, GPS time in seconds
-        // GPS time nanoseconds          // 14, GPS time in nanoseconds
+        to_big_endian(time_s),           // 12, The time (ctime) in seconds
+        to_big_endian(time_ns)           // 13, The time (ctime) in nano-seconds, can default to 0
     };
     size_t header_bytes_written = 0;
     size_t elements_written = fwrite(file_header0, sizeof(uint64_t), FH0SIZE, file);
@@ -238,13 +238,14 @@ size_t write_header(FILE *file, uint64_t *chans, uint64_t *coeffs, uint64_t vers
     }
     #undef FH1SIZE
     header_bytes_written += elements_written * sizeof(double);
-    // Write number of channels 
+    // Write channels that are used 
     elements_written = fwrite(chans, sizeof(uint64_t), (size_t)lenchans, file);
     if (elements_written != (size_t)lenchans) {
         perror("Error writing header-chans to file");
     }
     header_bytes_written += elements_written * sizeof(uint64_t);
-    elements_written = fwrite(coeffs, sizeof(uint64_t), (size_t)lenchans, file);
+    // Write the digital gain coefficients in each channel, TODO: 
+    elements_written = fwrite(coeffs, sizeof(uint64_t), (size_t)lenchans, file); // two times as many coeffs as channs [coeffs from pol0, coeffs from pol1]
     if (elements_written != (size_t)lenchans) {
         perror("Error writing header-coeffs to file");
     }
