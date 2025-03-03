@@ -250,7 +250,7 @@ class AlbatrosDigitizer(SparrowAlbatros):
         self.cfpga.registers.packetiser_spectra_per_packet.write_int(spectra_per_packet)
         self.logger.info(f"Set bytes-per-spectrum to {bytes_per_spectrum}")
         self.cfpga.registers.packetiser_bytes_per_spectrum.write_int(bytes_per_spectrum)
-        self.logger.info(f"Setting destination MAC address to {dest_mac}")
+        self.logger.info(f"NOT YET IMPLEMENTED: Setting destination MAC address to {dest_mac}")
         # TODO: set destination MAC address
         self.logger.info(f"Set destination IP address and port to {dest_ip}:{dest_prt}")
         self.cfpga.registers.dest_ip.write_int(str2ip(dest_ip))
