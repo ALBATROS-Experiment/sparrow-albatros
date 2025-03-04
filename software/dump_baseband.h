@@ -17,7 +17,8 @@
 // gain coefficients. Much is to be written to the binary baseband file header
 typedef struct {
     uint64_t* chans;
-    uint64_t* coeffs;
+    uint64_t* coeffs_pol0;
+    uint64_t* coeffs_pol1;
     uint64_t lenchans;
     uint64_t spec_per_packet;
     uint64_t bytes_per_specnum;
@@ -31,7 +32,8 @@ typedef struct {
     char coeffs_binary_path[MAX_STRING_LENGTH];
     double file_size;
     uint64_t max_bytes_per_packet;
-    uint64_t version;
+    uint64_t version_major;
+    uint64_t version_minor;
 } config_t;
 
 
@@ -55,7 +57,7 @@ uint64_t to_big_endian(uint64_t value);
 double to_big_endian_double(double value);
 
 // Write header of binary file that stores our baseband data
-size_t write_header(FILE *file, uint64_t *chans, uint64_t *coeffs, uint64_t version, uint64_t lenchans, uint64_t spec_per_packet, uint64_t bytes_per_packet, uint64_t bits);
+size_t write_header(FILE *file, uint64_t *chans, uint64_t *coeffs_pol0, uint64_t *coeffs_pol1, uint64_t version_major, uint64_t version_minor, uint64_t lenchans, uint64_t spec_per_packet, uint64_t bytes_per_packet, uint64_t bits);
 
 // Figure out how many packets to write to each binary file
 int get_packets_per_file(config_t* config);

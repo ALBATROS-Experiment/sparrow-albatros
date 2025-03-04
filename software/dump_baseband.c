@@ -30,7 +30,8 @@ void parse_chans(const char* chans_string, config_t* config) {
     free(chans_strcpy);
     // Allocate memory for chans (and coeffs, because they're going to be the same)
     config->chans = (uint64_t*)malloc(count * sizeof(uint64_t));
-    config->coeffs = (uint64_t*)malloc(count * sizeof(uint64_t));
+    config->coeffs_pol0 = (uint64_t*)malloc(count * sizeof(uint64_t));
+    config->coeffs_pol1 = (uint64_t*)malloc(count * sizeof(uint64_t));
     config->lenchans = (uint64_t)count;
     // Parse the string again to fill chans
     chans_strcpy = strdup(chans_string); // deep copy
@@ -43,7 +44,7 @@ void parse_chans(const char* chans_string, config_t* config) {
             uint64_t start = strtoull(token, NULL, 10);
             uint64_t end = strtoull(colon + 1, NULL, 10);
             for (uint64_t i = start; i < end; i++) {
-                config->chans[index++] = i;
+                config->chans[index++] = i; 
             }
         }
         token = strtok(NULL, " ");
@@ -61,8 +62,10 @@ static int my_ini_handler(void* user, const char* section, const char* name, con
             pconfig->file_size = strtod(value, NULL); // string to double
         } else if (strcmp(name, "bits") == 0) {
             pconfig->bits = strtoul(value, NULL, 10);
-        } else if (strcmp(name, "version") == 0) {
-            pconfig->version = strtoul(value, NULL, 10);
+        } else if (strcmp(name, "version_major") == 0) {
+            pconfig->version_major = strtoul(value, NULL, 10);
+        } else if (strcmp(name, "version_minor") == 0) {
+            pconfig->version_minor = strtoul(value, NULL, 10);
         }
     } else if (strcmp(section, "paths") == 0) {
         if (strcmp(name, "dump_spectra_output_directory") == 0) {
@@ -121,13 +124,16 @@ int set_coeffs_from_serialized_binary(config_t* pconfig) {
     }
     // Memory has already been allocated
     // Read the entire file into the array
-    size_t read_elements = fread(pconfig->coeffs, sizeof(uint64_t), num_elements, file);
+    size_t read_elements = fread(pconfig->coeffs_pol0, sizeof(uint64_t), num_elements, file);
     if (read_elements != num_elements) {
         perror("Failed to read file");
         fclose(file);
         return 1;
     }
     fclose(file);
+    // deep copy elements from pconfig->coeffs_pol0 into pconfig->coeffs_pol1
+    memcpy(pconfig->coeffs_pol1, pconfig->coeffs_pol0, num_elements * sizeof(uint64_t));
+    // TODO: make it so that digital gain coefficients are computed independently
     return 0;
 }
 
@@ -149,7 +155,8 @@ config_t get_config_from_ini(const char* filename) {
     config_t config;
     // Initialize pointers to NULL before allocation
     config.chans = NULL;
-    config.coeffs = NULL;
+    config.coeffs_pol0 = NULL;
+    config.coeffs_pol1 = NULL;
     // Parse the INI file
     if (ini_parse(filename, my_ini_handler, &config) < 0) {
         printf("Can't load config.ini\n");
@@ -191,65 +198,66 @@ double to_big_endian_double(double value) {
     return *(double*)&result; // Cast the result back to double
 }
 
+
 // Specifies the format and writes the header of an open, binary file
-size_t write_header(FILE *file, uint64_t *chans, uint64_t *coeffs, uint64_t version, uint64_t lenchans, uint64_t spec_per_packet, uint64_t bytes_per_packet, uint64_t bits) {
-    uint64_t have_gps = 1; // bool, 1-true, 0-false
+size_t write_header(FILE *file, uint64_t *chans, uint64_t *coeffs_pol0, uint64_t *coeffs_pol1, uint64_t version_major, uint64_t version_minor, uint64_t lenchans, uint64_t spec_per_packet, uint64_t bytes_per_packet, uint64_t bits) {
+    #define FH0SIZE 17
     // Total number of bytes in header, including bytes for header_bytes
-    uint64_t header_bytes = (12 + 2 * lenchans) * sizeof(uint64_t); // 2xlenchans for coeffs
-    // TODO: Read LeoBodnar, for now, dummy 
+    uint64_t header_bytes = (FH0SIZE + 3 * lenchans) * sizeof(uint64_t); // 1xlenchans for chans (idxs), 2xlenchans for coeffs
+    uint64_t escape_seq_zero = 0; // escape sequence to distinguish versioned headers from legacy header (SNAP data)
     // TODO: Version number is hard coded, major minor
+    uint64_t adc_clk = 250; // ADC sample rate MHz. TODO: read this from config.ini  [baseband] -> adc_clk
+    uint64_t fft_framelen = 4096; // Size of frames input into FFT on FPGA. TODO: get this from .fpg file instead
+    uint64_t station_id = 0; // The station id. Defaults to 0. TODO: establish convention and read from config.ini 
+    // TODO: Read LeoBodnar (for now we use dummy)
+    uint64_t have_gps  = 0; // bool, 1-true, 0-false
     uint64_t gps_week  = 0; // This is set to zero for whatever reason
-    uint64_t gps_time  = 0; // IRL read gps time with lbtools
-    uint64_t lattitude = 0; // IRL read gps time with lbtools
-    uint64_t longitude = 0; // IRL read gps time with lbtools
-    uint64_t elevation = 0; // IRL read gps time with lbtools
-    #define FH0SIZE 9
+    uint64_t time_s    = 0; // IRL read GPS or RTC time with lbtools
+    uint64_t time_ns   = 0; // IRL read GPS or RTC time with lbtools
+    uint64_t lattitude = 0; // IRL read GPS loc with lbtools
+    uint64_t longitude = 0; // IRL read GPS loc with lbtools
+    uint64_t elevation = 0; // IRL read GPS loc with lbtools
+    size_t header_bytes_written = 0; // A number we increment and then compare with header_bytes
     uint64_t file_header0[FH0SIZE] = {
         to_big_endian(header_bytes),     // 1, the number of bytes in the header including the bytes in header_bytes
-        // TODO: Escape sequence (zeros), to distinguish from old format without version number
-        to_big_endian(version),          // 3, the version number of the header [4 bytes major, 4 byte minor]
-        to_big_endian(bytes_per_packet), // 4, the nuber of bytes in the payload of each UDP packet
-        to_big_endian(lenchans),         // 5, number of frequency channels, both hardware channels 
-        to_big_endian(spec_per_packet),  // 6, number of spectra per packet
-        to_big_endian(bits),             // 7, number of bits quantized 1 or 4
-        // TODO: sample_rate (MHz) 250   // 8, ADC sampling rate in MHz
-        // fft_frame_len (4096)          // 9, FFT frame size, number of time-domain samples going into each FFT
-        // station_id                    // 10, station ID, read from config.ini, can default to 0
-        to_big_endian(have_gps),         // 11, binary whether there is a GPS
-        to_big_endian(time_s),           // 12, The time (ctime) in seconds
-        to_big_endian(time_ns)           // 13, The time (ctime) in nano-seconds, can default to 0
+        to_big_endian(escape_seq_zero),  // 2, Escape sequence (zeros), to distinguish from old format without version number
+        to_big_endian(version_major),    // 3, the major version number of the header 
+        to_big_endian(version_minor),    // 4, minor version number
+        to_big_endian(bytes_per_packet), // 5, the nuber of bytes in the payload of each UDP packet
+        to_big_endian(lenchans),         // 6, number of frequency channels, both hardware channels 
+        to_big_endian(spec_per_packet),  // 7, number of spectra per packet
+        to_big_endian(bits),             // 8, number of bits quantized 1 or 4
+        to_big_endian(adc_clk),          // 9, ADC sampling rate in MHz
+        to_big_endian(fft_framelen),     // 10, FFT frame size, number of time-domain samples going into each FFT
+        to_big_endian(station_id),       // 11, station ID, read from config.ini, can default to 0
+        to_big_endian(have_gps),         // 12, binary whether there is a GPS
+        to_big_endian(time_s),           // 13, The time (ctime) in seconds
+        to_big_endian(time_ns),          // 14, The time (ctime) in nano-seconds, can default to 0
+        to_big_endian_double(lattitude), // 15
+        to_big_endian_double(longitude), // 16
+        to_big_endian_double(elevation), // 17
     };
-    size_t header_bytes_written = 0;
     size_t elements_written = fwrite(file_header0, sizeof(uint64_t), FH0SIZE, file);
     if (elements_written != FH0SIZE) {
         perror("Error writing header-preamble to file");
     }
     #undef FH0SIZE
-    header_bytes_written += elements_written * sizeof(uint64_t);
-    #define FH1SIZE 3
-    double file_header1[FH1SIZE] = {
-        to_big_endian_double(lattitude), // 15
-        to_big_endian_double(longitude), // 16
-        to_big_endian_double(elevation), // 17
-    };
-    elements_written = fwrite(file_header1, sizeof(double), FH1SIZE, file);
-    if (elements_written != FH1SIZE) {
-        perror("Error writing header-gps to file");
-    }
-    #undef FH1SIZE
     header_bytes_written += elements_written * sizeof(double);
     // Write channels that are used 
-    elements_written = fwrite(chans, sizeof(uint64_t), (size_t)lenchans, file);
-    if (elements_written != (size_t)lenchans) {
-        perror("Error writing header-chans to file");
+    for (int i=0; i<(int)lenchans; i++) {
+        uint64_t big_endian_coeff = to_big_endian(chans[i]);
+        header_bytes_written += fwrite(&big_endian_coeff, sizeof(uint64_t), 1, file) * sizeof(uint64_t);
+    } 
+    // Write the digital gain coefficients in each channel
+    for (int i=0; i<(int)lenchans; i++) {
+        uint64_t big_endian_coeff = to_big_endian(coeffs_pol0[i]);
+        header_bytes_written += fwrite(&big_endian_coeff, sizeof(uint64_t), 1, file) * sizeof(uint64_t);
     }
-    header_bytes_written += elements_written * sizeof(uint64_t);
-    // Write the digital gain coefficients in each channel, TODO: 
-    elements_written = fwrite(coeffs, sizeof(uint64_t), (size_t)lenchans, file); // two times as many coeffs as channs [coeffs from pol0, coeffs from pol1]
-    if (elements_written != (size_t)lenchans) {
-        perror("Error writing header-coeffs to file");
+    for (int i=0; i<(int)lenchans; i++) {
+        uint64_t big_endian_coeff = to_big_endian(coeffs_pol1[i]);
+        header_bytes_written += fwrite(&big_endian_coeff, sizeof(uint64_t), 1, file) * sizeof(uint64_t);
     }
-    header_bytes_written += elements_written * sizeof(uint64_t);
+    // Compare the actual number of bytes written with how much we said we would write in header_bytes as a precaution
     if (header_bytes_written != (size_t)header_bytes) {
         fprintf(stderr, "Error! Header bytes was not correctly computed, expected %d instead go %d\n", (int)header_bytes, (int)header_bytes_written);
     }
@@ -262,7 +270,7 @@ int get_packets_per_file(config_t* config) {
     // To get the header size, we hack write_header_file and make sure everything is alright
     FILE *null_file = fopen("/dev/null","wb");
     if (null_file == NULL) return -1;
-    size_t header_bytes = write_header(null_file, config->chans, config->coeffs, config->version, config->lenchans, config->spec_per_packet, config->bytes_per_packet, config->bits);
+    size_t header_bytes = write_header(null_file, config->chans, config->coeffs_pol0, config->coeffs_pol1, config->version_major, config->version_minor, config->lenchans, config->spec_per_packet, config->bytes_per_packet, config->bits);
     fclose(null_file);
     int n_packets_per_file = ((int)file_size_bytes - (int)header_bytes) / (int)config->bytes_per_packet;
     // config->bytes_per_packet is uint64
@@ -387,7 +395,7 @@ int main() {
         }
 
         // Write the binary file header
-        size_t header_bytes = write_header(file, config.chans, config.coeffs, config.version, config.lenchans, config.spec_per_packet, config.bytes_per_packet, config.bits);
+        size_t header_bytes = write_header(file, config.chans, config.coeffs_pol0, config.coeffs_pol1, config.version_major, config.version_minor, config.lenchans, config.spec_per_packet, config.bytes_per_packet, config.bits);
 
         // Capture and write packets_per_file packets
         uint32_t specno_start;
