@@ -161,15 +161,15 @@ class AlbatrosDigitizer(SparrowAlbatros):
             raise ValueError(f"Bits must be 1 or 4, not {bits}")
         self.cfpga.write(channel_map, channels.astype(">H").tostring(), offset=0) # .tostring ret bytes
 
-    def set_channel_coeffs(self, coeffs, bits):
+    def set_channel_coeffs(self, coeffs_pol0, coeffs_pol1, bits):
         """coeffs must be array of type '>I'"""
         if bits==1:
             self.logger.info("In one bit mode. No need to write coeffs.")
             return 
         elif bits==4:
-            coeffs_bram_name="four_bit_quant_coeffs"
             self.logger.info("Setting four bit coeffs.")
-        self.cfpga.write(coeffs_bram_name, coeffs.tostring(), offset=0)
+            self.cfpga.write("four_bit_quant_coeffs_pol0", coeffs_pol0.tobytes(), offset=0)
+            self.cfpga.write("four_bit_quant_coeffs_pol1", coeffs_pol1.tobytes(), offset=0)
         return 
 
     def sync_pulse(self):
@@ -239,7 +239,6 @@ class AlbatrosDigitizer(SparrowAlbatros):
         self.logger.info(f"FPGA clock: {self.cfpga.estimate_fpga_clock():.2f}")
         self.logger.info(f"Set FFT shift schedule to {fftshift:b}")
         self.cfpga.registers.pfb_fft_shift.write_int(fftshift)
-        fft_of_count_init = self.cfpga.registers.fft_of_count.read_uint() # start counting fft overflows above this number
         self.logger.info(f"Set correlator accumulation length to {acc_len}")
         self.cfpga.registers.acc_len.write_int(acc_len)
         # This firmware only has 4-bit qutnziation
@@ -257,7 +256,7 @@ class AlbatrosDigitizer(SparrowAlbatros):
         self.cfpga.registers.dest_prt.write_int(dest_prt)
         # Do we need to set mac address?
         self.sync_pulse()
-        fft_of_count = self.cfpga.registers.fft_of_count.read_uint() - fft_of_count_init
+        fft_of_count = self.cfpga.registers.fft_of_count.read_uint()
         if fft_of_count != 0:
             self.logger.warning(f"FFT overflowing: count={fft_of_count}")
         else:
@@ -295,22 +294,25 @@ class AlbatrosDigitizer(SparrowAlbatros):
         # these are read as int64 but they are infact 64_35 for autocorr and 64_34 for xcorr
         pol00,pol11 = _pols['pol00'] / (1<<36), _pols['pol11'] / (1<<36) 
         acc_len = self.cfpga.registers.acc_len.read_uint() # number of spectra to accumulate
-        pol00_stds = np.sqrt(pol00 / acc_len) # Complex stds = sqrt2 * std in re/im
-        pol11_stds = np.sqrt(pol11 / acc_len) # Complex stds = sqrt2 * std in re/im
+        pol00_stds = np.sqrt(pol00 / (2*acc_len)) # stds of re or imaginary parts
+        pol11_stds = np.sqrt(pol11 / (2*acc_len)) 
         # for the same channel, we want to apply same digital gain to each pol
-        stds_reim = np.max(np.vstack([pol00_stds, pol11_stds]),axis=0) / np.sqrt(2) # re/im
-        print(stds_reim)
         quant4_delta = 1/8  # 0.125 is the quantization delta for 4-bit signed 4_3 as on fpga
                             # clips at plus/minus 0.875
         quant4_optimal = 0.353 # optimal 15-level quantization delta for gaussian with std=1
-        coeffs = np.zeros(2048) # hard coded num of chans as 2048
-        coeffs[chans] = quant4_delta / (stds_reim[chans]  * quant4_optimal)
-        coeffs[chans] *= (1<<18) # bram is re-interpreted as ufix 32_17
-        coeffs[chans] /=2 # not sure where missing factor of two comes from 
+        coeffs_pol0 = np.zeros(2048) # hard coded num of chans as 2048
+        coeffs_pol1 = np.zeros(2048) # hard coded num of chans as 2048
+        coeffs_pol0[chans] = quant4_delta / (pol00_stds[chans] * quant4_optimal)
+        coeffs_pol1[chans] = quant4_delta / (pol11_stds[chans] * quant4_optimal)
+        coeffs_pol0[chans] *= (1<<18)/2 # bram is re-interpreted as ufix 32_17
+        coeffs_pol1[chans] *= (1<<18)/2 # bram is re-interpreted as ufix 32_17
+        # not sure where missing factor of two comes from 
         # sets stds to roughly 2.83 [plus-minus systematic 0.05])
-        coeffs[coeffs > (1<<31)-1] = (1<<31)-1 # clip coeffs at max signed-int value
-        coeffs = np.array(coeffs + 0.5, dtype='>I')
-        return coeffs
+        coeffs_pol0[coeffs_pol0 > (1<<31)-1] = (1<<31)-1 # clip coeffs at max signed-int value
+        coeffs_pol1[coeffs_pol1 > (1<<31)-1] = (1<<31)-1 # clip coeffs at max signed-int value
+        coeffs_pol0 = np.array(coeffs_pol0 + 0.5, dtype='>I')
+        coeffs_pol1 = np.array(coeffs_pol1 + 0.5, dtype='>I')
+        return coeffs_pol0,coeffs_pol1
 
     def set_channels(self, channels:list):
         """
