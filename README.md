@@ -1,6 +1,16 @@
 # sparrow-albatros
 A repository for ALBATROS FPGA firmware (aka gateware) and embedded software targetting the Sparrow FPGA board.
 
+Documentation documents
+- [TODO] Running the data aquisition system (most basic use cases of a functioning system)
+- [TODO] Running the data aquisition system (under the hood)
+- [TODO] Data acquisition hardware
+- [TODO] Setup an SD card with the data aquisition software
+- [TODO] Embedded software detailed documentation (dev)
+- [TODO] FPGA gateware logic overview 
+- [TODO] FPGA gateware--setting up the toolchain and synthesising gateware
+
+
 ## Embedded software
 xyz
 
