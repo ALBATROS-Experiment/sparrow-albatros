@@ -29,7 +29,8 @@ typedef struct {
     char dump_spectra_output_directory[MAX_STRING_LENGTH];
     char dump_baseband_output_directory[MAX_STRING_LENGTH];
     char log_directory[MAX_STRING_LENGTH];
-    char coeffs_binary_path[MAX_STRING_LENGTH];
+    char coeffs_pol0_binary_path[MAX_STRING_LENGTH];
+    char coeffs_pol1_binary_path[MAX_STRING_LENGTH];
     double file_size;
     uint64_t max_bytes_per_packet;
     uint64_t version_major;
@@ -45,7 +46,7 @@ static int my_ini_handler(void* user, const char* section, const char* name, con
 
 // Read binary file specified at path given by config_t struct variable 
 // containing digital gain coefficients, stores these in this same struct
-int set_coeffs_from_serialized_binary(config_t* pconfig);
+int set_coeffs_from_serialized_binary_files(config_t* pconfig);
 
 uint64_t get_nspec(uint64_t lenchans, uint64_t max_nbyte);
 
@@ -64,6 +65,9 @@ int get_packets_per_file(config_t* config);
 
 // Create a directory at specified path if one doesn't exist already
 int create_directory_if_not_exists(char* path);
+
+// Helper for reading coeffs from serialize 4-bit coeffs
+int read_binary_file_into_array(char* binary_path, uint64_t* array, uint64_t n_elements_in_file);
 
 
 

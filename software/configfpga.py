@@ -79,7 +79,7 @@ fpga=casperfpga.CasperFpga(host,transport=casperfpga.KatcpTransport)
 sparrow=AlbatrosDigitizer(fpga,FPGFILE,ADC_CLK,logger)
 sparrow.setup()
 sparrow.set_channel_order(chans, BITS)
-sparrow.set_channel_coeffs(coeffs, BITS)
+sparrow.set_channel_coeffs(coeffs, coeffs, BITS)
 sparrow.tune(ref_clock=ADC_CLK,
         fftshift=0xffff, # TODO: integrate this, get this from config.ini
         acc_len=ACC_LEN,

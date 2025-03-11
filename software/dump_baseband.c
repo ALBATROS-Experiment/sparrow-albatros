@@ -12,7 +12,7 @@
 #include "dump_baseband.h"
 
 // Parse chans in config.ini format (e.g. "chans=190:194 220:222" means [190,191,192,193,220,221])
-// TODO: Fix this!
+// TODO: Fix this! (done?)
 void parse_chans(const char* chans_string, config_t* config) {
     // Count the number of ranges (space-separated)
     char* chans_strcpy = strdup(chans_string); // Copy input string to avoid modifying it
@@ -77,9 +77,12 @@ static int my_ini_handler(void* user, const char* section, const char* name, con
         } else if (strcmp(name, "log_directory") == 0) {
             strncpy(pconfig->log_directory, value, sizeof(pconfig->log_directory) - 1);
             pconfig->log_directory[sizeof(pconfig->log_directory) - 1] = '\0';
-        } else if (strcmp(name, "coeffs_binary_path") == 0) {
-            strncpy(pconfig->coeffs_binary_path, value, sizeof(pconfig->coeffs_binary_path) - 1);
-            pconfig->coeffs_binary_path[sizeof(pconfig->coeffs_binary_path) - 1] = '\0';
+        } else if (strcmp(name, "coeffs_pol0_binary_path") == 0) {
+            strncpy(pconfig->coeffs_pol0_binary_path, value, sizeof(pconfig->coeffs_pol0_binary_path) - 1);
+            pconfig->coeffs_pol0_binary_path[sizeof(pconfig->coeffs_pol0_binary_path) - 1] = '\0';
+        } else if (strcmp(name, "coeffs_pol1_binary_path") == 0) {
+            strncpy(pconfig->coeffs_pol1_binary_path, value, sizeof(pconfig->coeffs_pol1_binary_path) - 1);
+            pconfig->coeffs_pol1_binary_path[sizeof(pconfig->coeffs_pol1_binary_path) - 1] = '\0';
         }
     } else if (strcmp(section, "networking") == 0) {
         if (strcmp(name, "max_bytes_per_packet") == 0) {
@@ -89,10 +92,11 @@ static int my_ini_handler(void* user, const char* section, const char* name, con
     return 1; // Continue parsing
 }
 
-// Read a binary file, the location of which is provided by the config_t struct
-// Set coeffients based on data read and make pconfig->coeffs point to it
-int set_coeffs_from_serialized_binary(config_t* pconfig) {
-    FILE *file = fopen(pconfig->coeffs_binary_path, "rb");
+// Read a binary file into an array
+// This function is made for reading coeffs into binary array
+int read_binary_file_into_array(char* binary_path, uint64_t* array, uint64_t n_elements_in_file) {
+    // Open a file
+    FILE *file = fopen(binary_path, "rb"); // binary_path must be null terminated
     if (file == NULL) {
         perror("Error opening file");
         return 1;
@@ -106,7 +110,7 @@ int set_coeffs_from_serialized_binary(config_t* pconfig) {
         fclose(file);
         return 1;
     }
-    // Ensure the file size is a multiple of uint64_t
+    // Ensure the file size (in bytes) is a multiple of sizeof(uint64_t)
     if (file_size % sizeof(uint64_t) != 0) {
         fprintf(stderr, "File size is not a multiple of uint64_t\n");
         fclose(file);
@@ -114,28 +118,81 @@ int set_coeffs_from_serialized_binary(config_t* pconfig) {
     }
     // Calculate the number of uint64_t elements
     size_t num_elements = file_size / sizeof(uint64_t);
-    // Ensure num_elements corresopnds to lenchans
-    if ((uint64_t)num_elements != pconfig->lenchans) {
-        printf("num_elements: %d\n", num_elements);
-        printf("lenchans: %d\n", (int)pconfig->lenchans);
-        perror("Number of elements in serialized coeffs file does not match lenchans\n");
+    // Ensure num_elements corresponds to n_elements_in_file
+    if ((uint64_t)num_elements != n_elements_in_file) {
+        printf("num_elements read: %d\n", num_elements);
+        printf("num elements expected: %d\n", (int)n_elements_in_file);
+        perror("Number of elements found does not match expectation\n");
         fclose(file);
         return 1;
     }
     // Memory has already been allocated
     // Read the entire file into the array
-    size_t read_elements = fread(pconfig->coeffs_pol0, sizeof(uint64_t), num_elements, file);
+    size_t read_elements = fread(array, sizeof(uint64_t), num_elements, file);
     if (read_elements != num_elements) {
         perror("Failed to read file");
         fclose(file);
         return 1;
     }
     fclose(file);
-    // deep copy elements from pconfig->coeffs_pol0 into pconfig->coeffs_pol1
-    memcpy(pconfig->coeffs_pol1, pconfig->coeffs_pol0, num_elements * sizeof(uint64_t));
-    // TODO: make it so that digital gain coefficients are computed independently
     return 0;
 }
+
+// Read a binary file of the coefficients into coefficients array
+int set_coeffs_from_serialized_binary_files(config_t* pconfig) {
+    int retval = read_binary_file_into_array(pconfig->coeffs_pol0_binary_path, pconfig->coeffs_pol0, pconfig->lenchans);
+    if (retval == 1) { return 1; }
+    retval = read_binary_file_into_array(pconfig->coeffs_pol1_binary_path, pconfig->coeffs_pol1, pconfig->lenchans);
+    return retval;
+}
+
+//// Read a binary file, the location of which is provided by the config_t struct
+//// Set coeffients based on data read and make pconfig->coeffs point to it
+//int set_coeffs_from_serialized_binary_files(config_t* pconfig) {
+//    FILE *file = fopen(pconfig->coeffs_binary_path, "rb");
+//    if (file == NULL) {
+//        perror("Error opening file");
+//        return 1;
+//    }
+//    // Move to the end of the file to determine its size
+//    fseek(file, 0, SEEK_END);
+//    long file_size = ftell(file);
+//    rewind(file);
+//    if (file_size < 0) {
+//        perror("Failed to get file size");
+//        fclose(file);
+//        return 1;
+//    }
+//    // Ensure the file size is a multiple of uint64_t
+//    if (file_size % sizeof(uint64_t) != 0) {
+//        fprintf(stderr, "File size is not a multiple of uint64_t\n");
+//        fclose(file);
+//        return 1;
+//    }
+//    // Calculate the number of uint64_t elements
+//    size_t num_elements = file_size / sizeof(uint64_t);
+//    // Ensure num_elements corresopnds to lenchans
+//    if ((uint64_t)num_elements != pconfig->lenchans) {
+//        printf("num_elements: %d\n", num_elements);
+//        printf("lenchans: %d\n", (int)pconfig->lenchans);
+//        perror("Number of elements in serialized coeffs file does not match lenchans\n");
+//        fclose(file);
+//        return 1;
+//    }
+//    // Memory has already been allocated
+//    // Read the entire file into the array
+//    size_t read_elements = fread(pconfig->coeffs_pol0, sizeof(uint64_t), num_elements, file);
+//    if (read_elements != num_elements) {
+//        perror("Failed to read file");
+//        fclose(file);
+//        return 1;
+//    }
+//    fclose(file);
+//    // deep copy elements from pconfig->coeffs_pol0 into pconfig->coeffs_pol1
+//    memcpy(pconfig->coeffs_pol1, pconfig->coeffs_pol0, num_elements * sizeof(uint64_t));
+//    // TODO: make it so that digital gain coefficients are computed independently
+//    return 0;
+//}
 
 
 // Needs to yield same result as function get_nspec in utils.py 
@@ -163,7 +220,7 @@ config_t get_config_from_ini(const char* filename) {
         exit(1);
     }
     // coeffs memory has already been allocated,
-    if (set_coeffs_from_serialized_binary(&config) != 0) {
+    if (set_coeffs_from_serialized_binary_files(&config) != 0) {
         printf("Can't load coeffs from serialized binary.\n");
         exit(1);
     }
