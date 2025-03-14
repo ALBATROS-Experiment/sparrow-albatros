@@ -196,8 +196,8 @@ int set_coeffs_from_serialized_binary_files(config_t* pconfig) {
 
 
 // Needs to yield same result as function get_nspec in utils.py 
-uint64_t get_nspec(uint64_t lenchans, uint64_t max_nbyte) {
-    uint64_t nspec = max_nbyte / (2 * lenchans); // in 4bit mode only
+uint64_t get_nspec(uint64_t bytes_per_spec, uint64_t max_nbyte) {
+    uint64_t nspec = max_nbyte / bytes_per_spec; 
     if (nspec > 30) {
         nspec = 30;
     } else if (nspec < 1) {
@@ -225,8 +225,12 @@ config_t get_config_from_ini(const char* filename) {
         exit(1);
     }
     config.bytes_per_specnum = 4;
-    config.bytes_per_spec = config.lenchans * 2; // in 4bit mode only, in 1bit mode this will be different
-    config.spec_per_packet = get_nspec(config.lenchans, config.max_bytes_per_packet);
+    if (config.bits==4) {
+    	config.bytes_per_spec = config.lenchans * 2;
+    } else if (config.bits==1) {
+    	config.bytes_per_spec = config.lenchans / 2; // must be even, starting with even indices
+    }
+    config.spec_per_packet = get_nspec(config.bytes_per_spec, config.max_bytes_per_packet);
     config.bytes_per_packet = (config.spec_per_packet * config.bytes_per_spec) + config.bytes_per_specnum;
     printf("bytes_per_spec: %d\n", (int)config.bytes_per_spec);
     printf("spec_per_packet: %d\n", (int)config.spec_per_packet);
@@ -411,7 +415,7 @@ int main() {
     // TODO: Figure out how many files we can write to this drive based on how much space there 
     // is on drive, the size of each file, and the drive safety parameter which sets the maximum
     // fullness of the drives
-    int n_files_to_write = 500; // dummy
+    int n_files_to_write = 50000; // dummy
     int packets_per_file = get_packets_per_file(&config); // Figure out how many packets to write per file
     // TODO: log pertinant information
     // TODO: figure out how to deal with muxing drives, whether to do that in C or have a supervisor bash/python script for this

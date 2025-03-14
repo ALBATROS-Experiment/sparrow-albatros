@@ -54,7 +54,7 @@ COEFFS_POL0_BINARY_PATH=config_file.get("paths", "coeffs_pol0_binary_path")
 COEFFS_POL1_BINARY_PATH=config_file.get("paths", "coeffs_pol1_binary_path")
 ADC_CLK=config_file.getint("baseband", "adc_clk")
 HOST=config_file.get("networking", "host")
-assert BITS!=1, "No point in autotuning if we're quantizing to one bit"
+#assert BITS!=1, "No point in autotuning if we're quantizing to one bit"
 
 logger.info("Init-ing casperfpga object")
 fpga=casperfpga.CasperFpga(HOST,transport=casperfpga.KatcpTransport)
@@ -63,10 +63,10 @@ sparrow=AlbatrosDigitizer(fpga,FPGFILE,ADC_CLK,logger)
 # Assumes FPGA already setup and running
 logger.info("Assuming FPGA already up and running, no need to reprogram")
 logger.info("Parsing channels from config.ini channels string")
-chans_fpga=utils.get_channels_from_str(CHANNELS_STRING, BITS)
+chans_fpga=utils.get_channels_from_str(CHANNELS_STRING, 4)
 coeffs_pol0, coeffs_pol1 = sparrow.get_optimal_coeffs_from_acc(chans_fpga[::2]) # dtype '>I' big endian long
 logger.info("Setting coeffs on the FPGA")
-sparrow.set_channel_coeffs(coeffs_pol0, coeffs_pol1, bits=BITS)
+sparrow.set_channel_coeffs(coeffs_pol0, coeffs_pol1, bits=4)
 logger.info("Writing coeffs to secret binary for handoff to dump_baseband.c")
 with open(COEFFS_POL0_BINARY_PATH,"wb") as f:
     f.write(np.array(coeffs_pol0[chans_fpga[::2]],dtype='<Q').tobytes())
