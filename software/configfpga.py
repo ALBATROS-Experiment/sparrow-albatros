@@ -86,7 +86,10 @@ sparrow.tune(ref_clock=ADC_CLK,
         dest_ip=DEST_IP,
         dest_prt=DEST_PRT,
         spectra_per_packet=spectra_per_packet,
-        bytes_per_spectrum=bytes_per_spectrum)
+        bytes_per_spectrum=bytes_per_spectrum,
+        bits=BITS)
+
+#sparrow.cfpga.registers.gbe_en.write_int(0) # don't vomit packets everywhere
 
 
 

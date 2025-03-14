@@ -5,7 +5,7 @@ import time
 import numpy as np
 import argparse
 
-def ascii_plot(a,b,minfreq=None,maxfreq=None,char1="*",char2="o",height=20,width=80):
+def ascii_plot(a,b,minfreq=None,maxfreq=None,char1="*",char2="o",height=20,width=80,idxs=None):
     assert len(a)==width
     assert len(b)==width
     grid=[[' ' for _ in range(width)] for _ in range(height)]
@@ -24,10 +24,15 @@ def ascii_plot(a,b,minfreq=None,maxfreq=None,char1="*",char2="o",height=20,width
         print(''.join(row),end="")
         print('|',end="")
         if i%5==0 or i==len(grid)-1:print(f'{(1-i/height)*max_val + i/height*min_val:.1f}dB')
-        else:print()
+        else:print('        ')
     print('-'*(width+2))
     if minfreq is not None and maxfreq is not None:
         print(f'{minfreq:.1f}MHz' + ' '*(width-7) + f'{maxfreq:.1f}MHz')
+    if idxs is not None:
+        print(' '*(width//2+1),end='')
+        print('|')
+        print(' '*(width//2+1),end='')
+        print(f'ch{idxs[width//2]}')
     return
 
 # Create the argument parser
@@ -78,7 +83,7 @@ while True:
     width=len(idxs)
     height=width//3
     ascii_plot(10*np.log10(pol00[idxs]),10*np.log10(pol11[idxs]),minfreq,maxfreq,
-            height=height,width=width)
+            height=height,width=width,idxs=idxs)
 
 
 

@@ -153,13 +153,11 @@ class AlbatrosDigitizer(SparrowAlbatros):
 
     def set_channel_order(self, channels, bits):
         """Sets the firmware channels"""
-        if bits==1:
-            raise NotImplementedError(f"1 bit mode has not yet been implemented")
-        elif bits==4:
-            channel_map="four_bit_reorder_map1" # hard coded name of fpga bram name
-        else:
-            raise ValueError(f"Bits must be 1 or 4, not {bits}")
-        self.cfpga.write(channel_map, channels.astype(">H").tostring(), offset=0) # .tostring ret bytes
+        # hard coded names of brams
+        if bits==1: channel_map="one_bit_reorder_map1"
+        elif bits==4: channel_map="four_bit_reorder_map1" 
+        else: raise ValueError(f"Bits must be 1 or 4, not {bits}")
+        self.cfpga.write(channel_map, channels.astype(">H").tobytes(), offset=0)
 
     def set_channel_coeffs(self, coeffs_pol0, coeffs_pol1, bits):
         """coeffs must be array of type '>I'"""
@@ -200,7 +198,8 @@ class AlbatrosDigitizer(SparrowAlbatros):
         self.initialize_adc()
 
     def tune(self, ref_clock, fftshift, acc_len, dest_ip, 
-            dest_prt, spectra_per_packet, bytes_per_spectrum, dest_mac:int=0):
+            dest_prt, spectra_per_packet, bytes_per_spectrum,
+            bits, dest_mac:int=0):
         """
         Setup the FPGA firmware by tuning the input registers.
         Perform sanity check on each after setting the value. 
@@ -223,12 +222,15 @@ class AlbatrosDigitizer(SparrowAlbatros):
         :type spectra_per_packet: int
         :param bytes_per_spectrum: RV. Number of bytes in one, quantized spec. 
         :type bytes_per_spectrum: int
+        :param bits: Requantization mode, can be either 1 or 4 bits.
+        :type bits: int
 
         JF reccomends using netcat for writing packets to file for test. 
         """
         MTU=1500 # max number of bytes in a packet
         assert spectra_per_packet < (1<<5), "spec-per-pack too large for slice, aborting"
         assert spectra_per_packet * bytes_per_spectrum <= MTU-8, "Packets too large, will cause fragmentation"
+        assert bits in (1,4), f"Baseband requantization mode must be 1 or 4, not {bits}"
         # Assume bitstream already uploaded, data in self.cfpga
         # Assume ADCs already initialized including that get_system_information...
         # Inherit adc's logger level
@@ -241,7 +243,6 @@ class AlbatrosDigitizer(SparrowAlbatros):
         self.cfpga.registers.pfb_fft_shift.write_int(fftshift)
         self.logger.info(f"Set correlator accumulation length to {acc_len}")
         self.cfpga.registers.acc_len.write_int(acc_len)
-        # This firmware only has 4-bit qutnziation
         self.logger.info("Reset GBE (UDP packetizer)")
         self.cfpga.registers.gbe_rst.write_int(1)
         self.cfpga.registers.gbe_en.write_int(0)
@@ -249,12 +250,16 @@ class AlbatrosDigitizer(SparrowAlbatros):
         self.cfpga.registers.packetiser_spectra_per_packet.write_int(spectra_per_packet)
         self.logger.info(f"Set bytes-per-spectrum to {bytes_per_spectrum}")
         self.cfpga.registers.packetiser_bytes_per_spectrum.write_int(bytes_per_spectrum)
+        self.logger.info(f"Set quantization bit mode to {bits}-bits")
+        if bits==1: self.cfpga.registers.sel.write_int(0)
+        elif bits==4: self.cfpga.registers.sel.write_int(1)
         self.logger.info(f"NOT YET IMPLEMENTED: Setting destination MAC address to {dest_mac}")
         # TODO: set destination MAC address
         self.logger.info(f"Set destination IP address and port to {dest_ip}:{dest_prt}")
         self.cfpga.registers.dest_ip.write_int(str2ip(dest_ip))
         self.cfpga.registers.dest_prt.write_int(dest_prt)
         # Do we need to set mac address?
+        #time.sleep(1.1) # dogmatically wait for regs to set before sending sync pulse
         self.sync_pulse()
         fft_of_count = self.cfpga.registers.fft_of_count.read_uint()
         if fft_of_count != 0:
@@ -313,15 +318,6 @@ class AlbatrosDigitizer(SparrowAlbatros):
         coeffs_pol0 = np.array(coeffs_pol0 + 0.5, dtype='>I')
         coeffs_pol1 = np.array(coeffs_pol1 + 0.5, dtype='>I')
         return coeffs_pol0,coeffs_pol1
-
-    def set_channels(self, channels:list):
-        """
-        Set reorder BRAMs to reorder channels before selection.
-
-        :param channels: A list or array of the channels to select. 
-        """
-        # TODO: implement this
-        return 
 
     def get_adc_stats(self):
         """
