@@ -1,0 +1,18 @@
+site_name: Sparrow Albatros
+theme:
+  name: readthedocs
+  highlightjs: true
+  hljs_languages:
+    - python
+    - c
+nav: 
+  - Home: index.md
+  - Embedded Software:
+    - Collecting data (quick start): collecting-data-quickstart.md
+    - Collecting data (in depth): collecting-data-in-depth.md
+  - Gateware:
+    - Gateware overview: gateware-overview.md
+    - Installing the toolchain: installing-the-toolchain.md
+    - Gateware: gateware-documentation.md
+  - Disk Images:
+    - Installing Sparrow Albatros: installing-sparrow-albatros.md
