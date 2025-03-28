@@ -45,8 +45,8 @@ ax.grid(True)
 # Create initial empty plots for both polarizations
 idxs = np.arange(int(minfreq*2048/125), int(maxfreq*2048/125))
 x_freq = np.linspace(minfreq, maxfreq, len(idxs))
-line_pol00, = ax.plot(x_freq, np.zeros(len(idxs)), 'b-', label='pol00')
-line_pol11, = ax.plot(x_freq, np.zeros(len(idxs)), 'r-', label='pol11')
+line_pol00, = ax.plot(x_freq, np.zeros(len(idxs)), 'r-', label='pol00')
+line_pol11, = ax.plot(x_freq, np.zeros(len(idxs)), 'b-', label='pol11')
 ax.legend()
 
 # Add vertical line and text for center channel
