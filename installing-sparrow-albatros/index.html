@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../stylesheets/extra.css" rel="stylesheet" />
     
       <script>
         // Current page data
@@ -54,7 +55,7 @@
               </ul>
               <p class="caption"><span class="caption-text">Gateware</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../gateware-overview/">Gateware overview</a>
+                  <li class="toctree-l1"><a class="" href="../gateware-overview.md">Gateware overview</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../installing-the-toolchain/">Installing the toolchain</a>
                   </li>
@@ -95,14 +96,13 @@
                 <p>We're running Ubuntu 18.04.6 LTS (Bionic Beaver) on the Sparrow's ARM processor. </p>
 <h2 id="quick-start">Quick start</h2>
 <p>You have all the hardware for a Sparrow-Albatros data acquisition system and you want to get the software up and running for data collection. Easy, just download the latest image from <a href="https://github.com/ALBATROS-Experiment/sparrow-albatros/tree/main/os-sd-images">os-sd-images directory</a>, unzip it, and write it onto a fresh SD card. </p>
-<p>:warning: To save time writing the image we shrink the main filesystem partition. If the image hasn't automatically resized, make sure to resize the partition so that it takes up the full disk space. To do this:
-- Insert the SD card into a linux machine or computer
-- If it auto-mounts, unmount it
-- Open gparted
-- Select the SD card volume
-- Resize the filesystem partition "rootfs" so that it takes up the full remaining disk space (click on it and drag the arrow so that the partition takes up all the remaining empty space)
-- Click "Apply all operations"</p>
-<p>Now you're ready to run the data acquisition software. </p>
+<p><img alt="⚠" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/26a0.svg" title=":warning:" /> To save time writing the image we shrink the main filesystem partition. If the image hasn't automatically resized, make sure to resize the partition so that it takes up the full disk space. To do this:
+- Insert the SD card into a linux machine or computer, if using an SD card sleeve, make sure it is in writable mode (physical slot switched upwards, towards metal)
+- If it auto-mounts, <em>unmount it</em>
+- Open gparted <em>as superuser</em> <code>sudo gparted</code>
+- Select the volume corresponding to the SD card
+- Resize the filesystem partition "rootfs" so that it fills the remaining disk space (right-click, resize, drag and drop, click green tick box <em>apply all operations</em>) </p>
+<p>Stick the card into the Sparrow board's microSD card slot and you're good to go! </p>
               
             </div>
           </div><footer>
