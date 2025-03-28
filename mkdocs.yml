@@ -17,7 +17,7 @@ nav:
     - Collecting data (quick start): collecting-data-quickstart.md
     - Collecting data (in depth): collecting-data-in-depth.md
   - Gateware:
-    - Gateware overview: gateware-overview.md
+    - Gateware overview: gateware-design.md
     - Installing the toolchain: installing-the-toolchain.md
     - Gateware: gateware-documentation.md
   - Disk Images:
