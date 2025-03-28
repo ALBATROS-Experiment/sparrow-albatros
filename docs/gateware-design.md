@@ -1,11 +1,21 @@
+# Gateware Design Overview
 The digital signal processing logic starts at the ADCs, gets PFB'd (Filter + FFT), then splits into two signal paths:
+
 1. The logic re-quantizes the signal to 1 or 4 bits then selects and packages a subset of frequency channels into UDP packets which are streamed out of the Sparrow's 0'th SFP port. 
 2. On board auto and cross correlations which can be read by the ARM core over SPI.
+
+```
+                                     _--> Correlator -> Readable BRAM (SPI)
+2x Analog Signal -> ADC -> PFB/FFT _/
+                                    \_--> 1bit quant |mux\_--> UDP Packets (1GBE)
+                                      --> 4bit quant |   /
+```
 
 ## Forword on the Simulink-CASPER gateware design paradigm
 The Simulink (Matlab) and CASPER framework abstracts away the nitty gritty plumbing inherent to modern (2025) FPGA programming in regular text-based HDLs. There are good, bad, and ugly things about this. On the good side, the user can jump right in and design, simulate, compile, implement, and synthesise a basic design targeted for a supported FPGA. The simulation aspect is worth emphasising because it's very easy to write a bug into logic design and it's often very hard to catch it without simulation. On the bad side it is impossible to track small diffs with modern version control tools (git) between two commits because the .slx files, being diagramatic rather than text based, are big and stored in compressed binary format. And the ugly side which is that the toolchain is very brittle and annoying to set up. 
 
 Once you have the toolchain running and are ready to assemble your first design, you'll notice that there are many different types of color-coded block. 
+
 - The yellow (CASPER) blocks are IO bocks. They map hardware pins to logic, define user programmable BRAMS and registers
 - The green (CASPER) blocks are (vaguely) DSP blocks. They implement logic to manipulate data. 
 - The blue Xilinx blocks mix memory access and logic and are provided by Xilinx. These are primitive blocks provided by Xilinx, like operators or primitive data types in C.

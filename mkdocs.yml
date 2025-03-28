@@ -17,8 +17,8 @@ nav:
     - Collecting data (quick start): collecting-data-quickstart.md
     - Collecting data (in depth): collecting-data-in-depth.md
   - Gateware:
-    - Gateware overview: gateware-design.md
-    - Installing the toolchain: installing-the-toolchain.md
+    - Installing the Toolchain: installing-the-toolchain.md
+    - Gateware Design Overview: gateware-design.md
     - Gateware: gateware-documentation.md
   - Disk Images:
     - Installing Sparrow Albatros: installing-sparrow-albatros.md
