@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>Gateware overview - Sparrow Albatros</title>
+    <title>Gateware Design Overview - Sparrow Albatros</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -13,7 +13,7 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Gateware overview";
+        var mkdocs_page_name = "Gateware Design Overview";
         var mkdocs_page_input_path = "gateware-design.md";
         var mkdocs_page_url = null;
       </script>
@@ -55,11 +55,31 @@
               </ul>
               <p class="caption"><span class="caption-text">Gateware</span></p>
               <ul class="current">
-                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Gateware overview</a>
-    <ul class="current">
-    </ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../installing-the-toolchain/">Installing the Toolchain</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../installing-the-toolchain/">Installing the toolchain</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Gateware Design Overview</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#forword-on-the-simulink-casper-gateware-design-paradigm">Forword on the Simulink-CASPER gateware design paradigm</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#adc-interface">ADC interface</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pfb-fir">PFB FIR</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#fft">FFT</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#tvg1">TVG1</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#requantization">Requantization</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#packetiser">Packetiser</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#on-board-correlator">On board Correlator</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#user-readwriteable-registers">User read/writeable registers</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#user-bram-interfaces">User BRAM interfaces</a>
+    </li>
+    </ul>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../gateware-documentation/">Gateware</a>
                   </li>
@@ -84,7 +104,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
           <li class="breadcrumb-item">Gateware</li>
-      <li class="breadcrumb-item active">Gateware overview</li>
+      <li class="breadcrumb-item active">Gateware Design Overview</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -93,17 +113,27 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <p>The digital signal processing logic starts at the ADCs, gets PFB'd (Filter + FFT), then splits into two signal paths:
-1. The logic re-quantizes the signal to 1 or 4 bits then selects and packages a subset of frequency channels into UDP packets which are streamed out of the Sparrow's 0'th SFP port. 
-2. On board auto and cross correlations which can be read by the ARM core over SPI.</p>
+                <h1 id="gateware-design-overview">Gateware Design Overview</h1>
+<p>The digital signal processing logic starts at the ADCs, gets PFB'd (Filter + FFT), then splits into two signal paths:</p>
+<ol>
+<li>The logic re-quantizes the signal to 1 or 4 bits then selects and packages a subset of frequency channels into UDP packets which are streamed out of the Sparrow's 0'th SFP port. </li>
+<li>On board auto and cross correlations which can be read by the ARM core over SPI.</li>
+</ol>
+<pre><code>                                     _--&gt; Correlator -&gt; Readable BRAM (SPI)
+2x Analog Signal -&gt; ADC -&gt; PFB/FFT _/
+                                    \_--&gt; 1bit quant |mux\_--&gt; UDP Packets (1GBE)
+                                      --&gt; 4bit quant |   /
+</code></pre>
 <h2 id="forword-on-the-simulink-casper-gateware-design-paradigm">Forword on the Simulink-CASPER gateware design paradigm</h2>
 <p>The Simulink (Matlab) and CASPER framework abstracts away the nitty gritty plumbing inherent to modern (2025) FPGA programming in regular text-based HDLs. There are good, bad, and ugly things about this. On the good side, the user can jump right in and design, simulate, compile, implement, and synthesise a basic design targeted for a supported FPGA. The simulation aspect is worth emphasising because it's very easy to write a bug into logic design and it's often very hard to catch it without simulation. On the bad side it is impossible to track small diffs with modern version control tools (git) between two commits because the .slx files, being diagramatic rather than text based, are big and stored in compressed binary format. And the ugly side which is that the toolchain is very brittle and annoying to set up. </p>
-<p>Once you have the toolchain running and are ready to assemble your first design, you'll notice that there are many different types of color-coded block. 
-- The yellow (CASPER) blocks are IO bocks. They map hardware pins to logic, define user programmable BRAMS and registers
-- The green (CASPER) blocks are (vaguely) DSP blocks. They implement logic to manipulate data. 
-- The blue Xilinx blocks mix memory access and logic and are provided by Xilinx. These are primitive blocks provided by Xilinx, like operators or primitive data types in C.
-- Some white blocks implement simulation-only logic and tools to help develop and simulate the gateware.
-- The glossy grey blocks are user-defined <em>subsystems</em> that abstract away complexity, like a function in C or Python. Some white blocks also abstract user-defined logic, but these ones have 'mask parameters'. The values of mask parameters are set by the user before compilation, just like C macro-definitions. You can create one by highlighting some logic, righ-clicking, and selecting 'create subsystem from selection'. You can then turn a subsystem into a block with mask parameters by right-clicking the subsystem then Mask &gt; Create Mask.</p>
+<p>Once you have the toolchain running and are ready to assemble your first design, you'll notice that there are many different types of color-coded block. </p>
+<ul>
+<li>The yellow (CASPER) blocks are IO bocks. They map hardware pins to logic, define user programmable BRAMS and registers</li>
+<li>The green (CASPER) blocks are (vaguely) DSP blocks. They implement logic to manipulate data. </li>
+<li>The blue Xilinx blocks mix memory access and logic and are provided by Xilinx. These are primitive blocks provided by Xilinx, like operators or primitive data types in C.</li>
+<li>Some white blocks implement simulation-only logic and tools to help develop and simulate the gateware.</li>
+<li>The glossy grey blocks are user-defined <em>subsystems</em> that abstract away complexity, like a function in C or Python. Some white blocks also abstract user-defined logic, but these ones have 'mask parameters'. The values of mask parameters are set by the user before compilation, just like C macro-definitions. You can create one by highlighting some logic, righ-clicking, and selecting 'create subsystem from selection'. You can then turn a subsystem into a block with mask parameters by right-clicking the subsystem then Mask &gt; Create Mask.</li>
+</ul>
 <h2 id="adc-interface">ADC interface</h2>
 <p>The ADC interface block, labelled <code>sparrow_adc</code>, provides the plumbing to link the ADCs' output pins with the design. The <code>sync_adc</code> register provides an interface for the python framework to sync the ADCs. The ADCs are programmed to sample at 250 MSPS but the fabric clock in this design is configured to run at 125 MSPS. To accomplish this clock domain crossing ADC samples are loaded into the fabric two at a time from each Pol (analog channel). The four output pins labels <code>data_a/b_0/1</code> denote a/b for pol0/1 and 0/1 for first and second samples within one fabric-clock period.
 <img alt="image" src="https://github.com/user-attachments/assets/87739643-ff36-4363-bd93-22c0d8739f6b" /></p>
@@ -197,8 +227,8 @@ Comunitatus
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../collecting-data-in-depth/" class="btn btn-neutral float-left" title="Collecting data (in depth)"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../installing-the-toolchain/" class="btn btn-neutral float-right" title="Installing the toolchain">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../installing-the-toolchain/" class="btn btn-neutral float-left" title="Installing the Toolchain"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../gateware-documentation/" class="btn btn-neutral float-right" title="Gateware">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -221,10 +251,10 @@ Comunitatus
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../collecting-data-in-depth/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../installing-the-toolchain/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../installing-the-toolchain/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../gateware-documentation/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
