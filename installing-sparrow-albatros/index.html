@@ -96,13 +96,22 @@
                 <p>We're running Ubuntu 18.04.6 LTS (Bionic Beaver) on the Sparrow's ARM processor. </p>
 <h2 id="quick-start">Quick start</h2>
 <p>You have all the hardware for a Sparrow-Albatros data acquisition system and you want to get the software up and running for data collection. Easy, just download the latest image from <a href="https://github.com/ALBATROS-Experiment/sparrow-albatros/tree/main/os-sd-images">os-sd-images directory</a>, unzip it, and write it onto a fresh SD card. </p>
-<p><img alt="⚠" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/26a0.svg" title=":warning:" /> To save time writing the image we shrink the main filesystem partition. If the image hasn't automatically resized, make sure to resize the partition so that it takes up the full disk space. To do this:
-- Insert the SD card into a linux machine or computer, if using an SD card sleeve, make sure it is in writable mode (physical slot switched upwards, towards metal)
-- If it auto-mounts, <em>unmount it</em>
-- Open gparted <em>as superuser</em> <code>sudo gparted</code>
-- Select the volume corresponding to the SD card
-- Resize the filesystem partition "rootfs" so that it fills the remaining disk space (right-click, resize, drag and drop, click green tick box <em>apply all operations</em>) </p>
+<p><img alt="⚠" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/26a0.svg" title=":warning:" /> To save time writing the image we shrink the main filesystem partition. If the image hasn't automatically resized, make sure to resize the partition so that it takes up the full disk space. To do this:</p>
+<ul>
+<li>Insert the SD card into a linux machine or computer, if using an SD card sleeve, make sure it is in writable mode (physical slot switched upwards, towards metal)</li>
+<li>If it auto-mounts, <em>unmount it</em></li>
+<li>Open gparted <em>as superuser</em> <code>sudo gparted</code></li>
+<li>Select the volume corresponding to the SD card</li>
+<li>Resize the filesystem partition "rootfs" so that it fills the remaining disk space (right-click, resize, drag and drop, click green tick box <em>apply all operations</em>) </li>
+</ul>
 <p>Stick the card into the Sparrow board's microSD card slot and you're good to go! </p>
+<h2 id="installing-sparrow-albatros-software-onto-a-fresh-sd-card">Installing Sparrow-Albatros software onto a fresh SD card</h2>
+<p>If you want to install and this software on a different OS, here are a few things to look out for:</p>
+<ul>
+<li>When cloning the repository, make sure to not pull large files. If git-lfs is installed cloning will by default pull large files from the repository. To avoid pulling large files execute <code>export GIT_LFS_SKIP_SMUDGE=1</code> then <code>git clone --filter=blob:none https://github.com/ALBATROS-Experiment/sparrow-albatros</code></li>
+<li>You need to install <a href="https://www.realtimeradio.co.uk/hardware">realtimeradio</a>'s <a href="https://github.com/realtimeradio/sparrow-fpga">sparrow-fpga</a> repository and configure the <code>zync_scripts/onboot.sh</code> script to run on boot. In our imaged setup the onboot script is symlinked to the user's root directory and executes automatically on each boot. The <code>onboot.sh</code> script sets some environment variables and configures the PLL. </li>
+<li>For the LEO Bodnar GPS module to work, copy <code>software/10-local.rules</code> to <code>/etc/udev/rules.d/</code>. Then reboot or reload the udevadm with <code>sudo udevadm control --reload</code>, <code>sudo udevadm trigger</code>. Check that it's working by running the <code>software/check_lb.py</code> script <em>as superuser</em>.</li>
+</ul>
               
             </div>
           </div><footer>
