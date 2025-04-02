@@ -17,7 +17,7 @@ Now that you've tunneled in, you can run data collection.
 4. Modify the user configuration file `config.ini` to fit your needs
 5. Configure the FPGA with `python configfpga.py` and make sure the switch's lights are flashing consistently. 
 6. Start a screen session for recording the on board correlations `screen -S spec`
-7. From this screen session run `python dump_spectra.py`
+7. From this screen session run `python dump_spectra.py`. You may need to run this in sudo in which case make sure to run the correct python interpreter. Find the one activated in the current VM with `which python`, then copy the result of this and run `sudo </path/to/python/interpreter> dump_spectra.py`
 8. Detach yourself from the screen session with `ctrl`+`a`+`d` 
 9. Start a new screen session for running the baseband collection script `screen -S baseband`
 10. If you are collecting 4-bit data run `python set_optimal_coeffs.py`, this uses the on board correlation to optimally set the digital gain coefficients at the requantization stage. [!NOTE] This can only be run at least 15 seconds after the FPGA has been configured (step 5)
