@@ -253,7 +253,7 @@ def lb_read(ntry=1000, timeout=1000):
     return tstamp, auxdat, gpstime
 
 #====================================================================
-def set_clock_lb(current_year=2021):
+def set_clock_lb(current_year=2025):
     """
     Used in the ALBATROS config script.
     Initiates the LB with the lb_set() command and then sets system time to the LB GPS time.
