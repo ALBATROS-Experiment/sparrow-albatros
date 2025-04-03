@@ -10,6 +10,7 @@
 #include <arpa/inet.h> // for ntohl network to host long
 #include "ini.h" // Ensure inih is installed
 #include "dump_baseband.h"
+#include "lbtools.h" // Include Leo Bodnar GPS tools
 
 // Parse chans in config.ini format (e.g. "chans=190:194 220:222" means [190,191,192,193,220,221])
 // TODO: Fix this! (done?)
@@ -270,14 +271,29 @@ size_t write_header(FILE *file, uint64_t *chans, uint64_t *coeffs_pol0, uint64_t
     uint64_t adc_clk = 250; // ADC sample rate MHz. TODO: read this from config.ini  [baseband] -> adc_clk
     uint64_t fft_framelen = 4096; // Size of frames input into FFT on FPGA. TODO: get this from .fpg file instead
     uint64_t station_id = 0; // The station id. Defaults to 0. TODO: establish convention and read from config.ini 
-    // TODO: Read LeoBodnar (for now we use dummy)
-    uint64_t have_gps  = 0; // bool, 1-true, 0-false
-    uint64_t gps_week  = 0; // This is set to zero for whatever reason
-    uint64_t time_s    = 0; // IRL read GPS or RTC time with lbtools
-    uint64_t time_ns   = 0; // IRL read GPS or RTC time with lbtools
-    uint64_t lattitude = 0; // IRL read GPS loc with lbtools
-    uint64_t longitude = 0; // IRL read GPS loc with lbtools
-    uint64_t elevation = 0; // IRL read GPS loc with lbtools
+    
+    // Read GPS data from Leo Bodnar
+    uint64_t have_gps = 0;  // default to not having GPS
+    uint64_t gps_week = 0;  // This is set to zero for whatever reason
+    uint64_t time_s = 0;    // Unix timestamp from GPS
+    double nano = 0.0;      // Nanosecond precision
+    uint64_t time_ns = 0;   // Nanoseconds for header
+    double longitude = 0.0; // Longitude from GPS
+    double lattitude = 0.0; // Latitude from GPS
+    double elevation = 0.0; // Altitude from GPS
+    char validity[5];       // GPS validity flags
+    struct tm gpstime;      // GPS time struct
+    
+    // Try to read from Leo Bodnar GPS
+    if (lb_read(1000, 1000, (time_t*)&time_s, &nano, validity, &longitude, &lattitude, &elevation, &gpstime)) {
+        // Successfully read GPS data
+        have_gps = 1;
+        time_ns = (uint64_t)(nano * 1e9); // Convert to nanoseconds
+        printf("GPS data acquired - Time: %s, Lat: %.6f, Lon: %.6f, Alt: %.1f m\n", 
+              asctime(&gpstime), lattitude, longitude, elevation);
+    } else {
+        printf("Warning: Could not read GPS data, using default values\n");
+    }
     size_t header_bytes_written = 0; // A number we increment and then compare with header_bytes
     uint64_t file_header0[FH0SIZE] = {
         to_big_endian(header_bytes),     // 1, the number of bytes in the header including the bytes in header_bytes
@@ -293,10 +309,10 @@ size_t write_header(FILE *file, uint64_t *chans, uint64_t *coeffs_pol0, uint64_t
         to_big_endian(station_id),       // 11, station ID, read from config.ini, can default to 0
         to_big_endian(have_gps),         // 12, binary whether there is a GPS
         to_big_endian(time_s),           // 13, The time (ctime) in seconds
-        to_big_endian(time_ns),          // 14, The time (ctime) in nano-seconds, can default to 0
-        to_big_endian_double(lattitude), // 15
-        to_big_endian_double(longitude), // 16
-        to_big_endian_double(elevation), // 17
+        to_big_endian(time_ns),          // 14, The time (ctime) in nano-seconds
+        to_big_endian_double(lattitude), // 15, Latitude in degrees
+        to_big_endian_double(longitude), // 16, Longitude in degrees
+        to_big_endian_double(elevation), // 17, Altitude in meters
     };
     size_t elements_written = fwrite(file_header0, sizeof(uint64_t), FH0SIZE, file);
     if (elements_written != FH0SIZE) {
@@ -363,6 +379,13 @@ int main() {
     struct bpf_program fp; // The compiled filter
     char filter_exp[] = "udp and dst port 7417 and dst host 10.10.11.99 and src host 192.168.41.10";
     bpf_u_int32 net;
+    
+    // Initialize Leo Bodnar GPS device
+    if (!lb_set()) {
+        printf("Warning: Failed to initialize Leo Bodnar GPS device\n");
+    } else {
+        printf("Leo Bodnar GPS device initialized successfully\n");
+    }
     
     /////////////////// INIT PACKET SNIFFER ///////////////////
     // Create sniffing device
