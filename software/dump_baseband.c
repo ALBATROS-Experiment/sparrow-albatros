@@ -8,9 +8,43 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <arpa/inet.h> // for ntohl network to host long
+#include <stdarg.h>    // for va_list
+#include <errno.h>     // for errno and error codes
 #include "ini.h" // Ensure inih is installed
 #include "dump_baseband.h"
 #include "lbtools.h" // Include Leo Bodnar GPS tools
+
+// Global log file pointer for logging
+FILE *log_file = NULL;
+
+// Custom log function that prints to both stdout and the log file
+void log_message(const char *format, ...) {
+    va_list args1, args2;
+    va_start(args1, format);
+    va_start(args2, format);
+    
+    // Print to stdout
+    vprintf(format, args1);
+    fflush(stdout);
+    
+    // Print to log file if initialized
+    if (log_file != NULL) {
+        // Add timestamp to log file entries
+        char timestamp[30];
+        time_t now;
+        struct tm *timeinfo;
+        time(&now);
+        timeinfo = localtime(&now);
+        strftime(timestamp, sizeof(timestamp), "[%Y-%m-%d %H:%M:%S] ", timeinfo);
+        
+        fprintf(log_file, "%s", timestamp);
+        vfprintf(log_file, format, args2);
+        fflush(log_file);
+    }
+    
+    va_end(args1);
+    va_end(args2);
+}
 
 // Parse chans in config.ini format (e.g. "chans=190:194 220:222" means [190,191,192,193,220,221])
 // TODO: Fix this! (done?)
@@ -121,9 +155,9 @@ int read_binary_file_into_array(char* binary_path, uint64_t* array, uint64_t n_e
     size_t num_elements = file_size / sizeof(uint64_t);
     // Ensure num_elements corresponds to n_elements_in_file
     if ((uint64_t)num_elements != n_elements_in_file) {
-        printf("num_elements read: %d\n", num_elements);
-        printf("num elements expected: %d\n", (int)n_elements_in_file);
-        perror("Number of elements found does not match expectation\n");
+        log_message("ERROR: num_elements read: %d\n", num_elements);
+        log_message("ERROR: num elements expected: %d\n", (int)n_elements_in_file);
+        log_message("ERROR: Number of elements found does not match expectation: %s\n", strerror(errno));
         fclose(file);
         return 1;
     }
@@ -131,7 +165,7 @@ int read_binary_file_into_array(char* binary_path, uint64_t* array, uint64_t n_e
     // Read the entire file into the array
     size_t read_elements = fread(array, sizeof(uint64_t), num_elements, file);
     if (read_elements != num_elements) {
-        perror("Failed to read file");
+        log_message("ERROR: Failed to read file: %s\n", strerror(errno));
         fclose(file);
         return 1;
     }
@@ -202,7 +236,7 @@ uint64_t get_nspec(uint64_t bytes_per_spec, uint64_t max_nbyte) {
     if (nspec > 30) {
         nspec = 30;
     } else if (nspec < 1) {
-        printf("WARNING: nspec<1, packets may be fragmented.");
+        log_message("WARNING: nspec<1, packets may be fragmented.\n");
         nspec = 1;
     }
     return nspec;
@@ -217,12 +251,12 @@ config_t get_config_from_ini(const char* filename) {
     config.coeffs_pol1 = NULL;
     // Parse the INI file
     if (ini_parse(filename, my_ini_handler, &config) < 0) {
-        printf("Can't load config.ini\n");
+        log_message("ERROR: Can't load config.ini\n");
         exit(1);
     }
     // coeffs memory has already been allocated,
     if (set_coeffs_from_serialized_binary_files(&config) != 0) {
-        printf("Can't load coeffs from serialized binary.\n");
+        log_message("ERROR: Can't load coeffs from serialized binary.\n");
         exit(1);
     }
     config.bytes_per_specnum = 4;
@@ -233,9 +267,9 @@ config_t get_config_from_ini(const char* filename) {
     }
     config.spec_per_packet = get_nspec(config.bytes_per_spec, config.max_bytes_per_packet);
     config.bytes_per_packet = (config.spec_per_packet * config.bytes_per_spec) + config.bytes_per_specnum;
-    printf("bytes_per_spec: %d\n", (int)config.bytes_per_spec);
-    printf("spec_per_packet: %d\n", (int)config.spec_per_packet);
-    printf("bytes_per_packet: %d\n", (int)config.bytes_per_packet);
+    log_message("bytes_per_spec: %d\n", (int)config.bytes_per_spec);
+    log_message("spec_per_packet: %d\n", (int)config.spec_per_packet);
+    log_message("bytes_per_packet: %d\n", (int)config.bytes_per_packet);
     return config;
 }
 
@@ -289,10 +323,10 @@ size_t write_header(FILE *file, uint64_t *chans, uint64_t *coeffs_pol0, uint64_t
         // Successfully read GPS data
         have_gps = 1;
         time_ns = (uint64_t)(nano * 1e9); // Convert to nanoseconds
-        printf("GPS data acquired - Time: %s, Lat: %.6f, Lon: %.6f, Alt: %.1f m\n", 
+        log_message("GPS data acquired - Time: %s, Lat: %.6f, Lon: %.6f, Alt: %.1f m\n", 
               asctime(&gpstime), lattitude, longitude, elevation);
     } else {
-        printf("Warning: Could not read GPS data, using default values\n");
+        log_message("Warning: Could not read GPS data, using default values\n");
     }
     size_t header_bytes_written = 0; // A number we increment and then compare with header_bytes
     uint64_t file_header0[FH0SIZE] = {
@@ -336,7 +370,7 @@ size_t write_header(FILE *file, uint64_t *chans, uint64_t *coeffs_pol0, uint64_t
     }
     // Compare the actual number of bytes written with how much we said we would write in header_bytes as a precaution
     if (header_bytes_written != (size_t)header_bytes) {
-        fprintf(stderr, "Error! Header bytes was not correctly computed, expected %d instead go %d\n", (int)header_bytes, (int)header_bytes_written);
+        log_message("ERROR: Header bytes was not correctly computed, expected %d instead got %d\n", (int)header_bytes, (int)header_bytes_written);
     }
     return header_bytes_written;
 }
@@ -361,14 +395,14 @@ int create_directory_if_not_exists(char* path) {
     if (stat(path, &st) == -1) {
         // Directory doesn't exist, create it
         if (mkdir(path, 0777) == 0) {
-            printf("Directory created successfully: %s\n", path);
+            log_message("Directory created successfully: %s\n", path);
             return 0;
         } else {
-            perror("Failed to create directory\n");
+            log_message("ERROR: Failed to create directory: %s - %s\n", path, strerror(errno));
             return -1;
         }
     } else {
-        printf("Directory already exists: %s\n", path);
+        log_message("Directory already exists: %s\n", path);
         return 1;
     }
 }
@@ -380,52 +414,81 @@ int main() {
     char filter_exp[] = "udp and dst port 7417 and dst host 10.10.11.99 and src host 192.168.41.10";
     bpf_u_int32 net;
     
+    // Initialize log file in ~/logs/baseband/
+    char log_dir[256] = {0};
+    char log_file_path[512] = {0};
+    char timestamp[20] = {0};
+    time_t now = time(NULL);
+    struct tm *timeinfo = localtime(&now);
+    
+    // Format the timestamp for the log filename
+    strftime(timestamp, sizeof(timestamp), "%Y%m%d-%H%M%S", timeinfo);
+    
+    // Create directory path
+    snprintf(log_dir, sizeof(log_dir), "%s/logs/baseband", getenv("HOME"));
+    
+    // Create directory if it doesn't exist
+    char mkdir_cmd[512];
+    snprintf(mkdir_cmd, sizeof(mkdir_cmd), "mkdir -p %s", log_dir);
+    system(mkdir_cmd);
+    
+    // Create log file path
+    snprintf(log_file_path, sizeof(log_file_path), "%s/baseband-%s.log", log_dir, timestamp);
+    
+    // Open log file
+    log_file = fopen(log_file_path, "w");
+    if (log_file == NULL) {
+        fprintf(stderr, "Could not open log file %s. Will continue without logging to file.\n", log_file_path);
+    } else {
+        log_message("Log file opened at %s\n", log_file_path);
+    }
+    
     // Initialize Leo Bodnar GPS device
     if (!lb_set()) {
-        printf("Warning: Failed to initialize Leo Bodnar GPS device\n");
+        log_message("Warning: Failed to initialize Leo Bodnar GPS device\n");
     } else {
-        printf("Leo Bodnar GPS device initialized successfully\n");
+        log_message("Leo Bodnar GPS device initialized successfully\n");
     }
     
     /////////////////// INIT PACKET SNIFFER ///////////////////
     // Create sniffing device
     handle = pcap_create("eth0", errbuf);
     if (handle == NULL) {
-        fprintf(stderr, "Couldn't open device: %s\n", errbuf);
+        log_message("ERROR: Couldn't open device: %s\n", errbuf);
         return 1;
     }
     // Promiscuous mode
     if (pcap_set_promisc(handle, 1) != 0) {
-        fprintf(stderr, "Couldn't set promiscuous mode: %s\n", pcap_geterr(handle));
+        log_message("ERROR: Couldn't set promiscuous mode: %s\n", pcap_geterr(handle));
         return 1;
     }
     // Set timeout
     if (pcap_set_timeout(handle, 1000) !=  0) {
-        fprintf(stderr, "Couldn't set timeout: %s\n", pcap_geterr(handle));
+        log_message("ERROR: Couldn't set timeout: %s\n", pcap_geterr(handle));
         return 1;
     }
     // Set buffer size to 20 MB 20*1024*1024=20971520 bytes
     if (pcap_set_buffer_size(handle, 20971520) != 0) {
-        fprintf(stderr, "Couldn't set buffer size: %s\n", pcap_geterr(handle));
+        log_message("ERROR: Couldn't set buffer size: %s\n", pcap_geterr(handle));
         return 1;
     }
     if (pcap_set_snaplen(handle, BUFSIZ) != 0) {
-        fprintf(stderr, "Couldn't set snap buffer: %s\n", pcap_geterr(handle));
+        log_message("ERROR: Couldn't set snap buffer: %s\n", pcap_geterr(handle));
         return 1;
     }
     // Activate
     if (pcap_activate(handle) != 0) {
-        fprintf(stderr, "Couldn't activate pcap handle: %s\n", pcap_geterr(handle));
+        log_message("ERROR: Couldn't activate pcap handle: %s\n", pcap_geterr(handle));
         return 1;
     }
     // Compile the filter expression
     if (pcap_compile(handle, &fp, filter_exp, 0, net) == -1) {
-        fprintf(stderr, "Couldn't parse filter %s: %s\n", filter_exp, pcap_geterr(handle));
+        log_message("ERROR: Couldn't parse filter %s: %s\n", filter_exp, pcap_geterr(handle));
         return 1;
     }
     // Set the compiled filter
     if (pcap_setfilter(handle, &fp) == -1) {
-        fprintf(stderr, "Couldn't install filter %s: %s\n", filter_exp, pcap_geterr(handle));
+        log_message("ERROR: Couldn't install filter %s: %s\n", filter_exp, pcap_geterr(handle));
         return 1;
     }
 
@@ -442,10 +505,11 @@ int main() {
     int packets_per_file = get_packets_per_file(&config); // Figure out how many packets to write per file
     // TODO: log pertinant information
     // TODO: figure out how to deal with muxing drives, whether to do that in C or have a supervisor bash/python script for this
-    printf("packets_per_file: %d\n", packets_per_file);
+    log_message("packets_per_file: %d\n", packets_per_file);
     uint32_t specno_end_prev_file = 0;
 
     // Loop through number of packets to write (this is the main loop)
+    log_message("Starting main loop to write %d files\n", n_files_to_write);
     for (int i = 0; i < n_files_to_write; i++) {
         // Create directory if it doesn't exist
         char timestamp[20]; // big enough to hold the timestamp as a string
@@ -464,9 +528,9 @@ int main() {
         char bbfilepath[MAX_STRING_LENGTH + MAX_STRING_LENGTH];
         snprintf(bbfilepath, sizeof(bbfilepath), "%s/%s/%s.raw", config.dump_baseband_output_directory, sliced_timestamp, timestamp);
         FILE *file = fopen(bbfilepath, "wb");
-        printf("Writing to %s\n", bbfilepath);
+        log_message("Writing to %s\n", bbfilepath);
         if (file == NULL) {
-            perror("Error opening file");
+            log_message("ERROR: Could not open file for writing: %s - %s\n", bbfilepath, strerror(errno));
             return 1;
         }
 
@@ -474,7 +538,7 @@ int main() {
         size_t buffer_size = 20 * 1024 * 1024;
         char *buffer = malloc(buffer_size); // Allocate buffer
         if (setvbuf(file, buffer, _IOFBF, buffer_size) != 0) {
-            perror("Error setting buffer");
+            log_message("ERROR: Failed to set file buffer: %s\n", strerror(errno));
             return 1;
         }
 
@@ -488,10 +552,10 @@ int main() {
             struct pcap_pkthdr header;
             const u_char *packet = pcap_next(handle, &header);
             if (packet == NULL) {
-                printf("Failed to capture a packet\n");
+                log_message("ERROR: Failed to capture a packet\n");
                 return 1;
             }
-            //printf("Captured a packet with length: %d\n", header.len);
+            //log_message("Captured a packet with length: %d\n", header.len);
             // Parse the packet, assumes eth0 traffic already filtered correctly (only accept UDP packets from FPGA going to Sparrow IP)
             // Write the packet to the binary file, use pointer arithmetic to seek payload starting point
             if (i == 0) {
@@ -503,21 +567,35 @@ int main() {
             }
             size_t bytes_written = fwrite(packet + UDP_PAYLOAD_START, 1, (size_t)config.bytes_per_packet, file);
             if (bytes_written != (size_t)config.bytes_per_packet) {
-                fprintf(stderr, "Failed to write all bytes to file\n");
+                log_message("ERROR: Failed to write all bytes to file, wrote %zu of %zu bytes\n", 
+                           bytes_written, (size_t)config.bytes_per_packet);
             }
         }
-        printf("Dropped packets within file %.8f%%\n", 100 - (100 * ((double)config.spec_per_packet * (double)packets_per_file) / ((double)specno_end - (double)specno_start + (double)config.spec_per_packet)));
-        printf("Dropped packets between files %.2f\n", ((double)specno_start - ((double)specno_end_prev_file + (double)config.spec_per_packet)) / (double)config.spec_per_packet);
-        //printf("specno_end_prev_file %d\n", specno_end_prev_file);
-        //printf("specno_start %d\n", specno_start);
-        //printf("specno_end %d\n", specno_end);
+        log_message("Dropped packets within file %.8f%%\n", 100 - (100 * ((double)config.spec_per_packet * (double)packets_per_file) / ((double)specno_end - (double)specno_start + (double)config.spec_per_packet)));
+        log_message("Dropped packets between files %.2f\n", ((double)specno_start - ((double)specno_end_prev_file + (double)config.spec_per_packet)) / (double)config.spec_per_packet);
+        //log_message("specno_end_prev_file %d\n", specno_end_prev_file);
+        //log_message("specno_start %d\n", specno_start);
+        //log_message("specno_end %d\n", specno_end);
         specno_end_prev_file = specno_end;
         fclose(file);       // Close the file
         free(buffer);       // Clean up mallocated file-buffer space
+        
+        // Log progress
+        log_message("Completed file %d of %d\n", i+1, n_files_to_write);
     }
+    
     // Cleanup
+    log_message("Main loop completed, cleaning up resources\n");
     pcap_freecode(&fp); // Free the compiled filter
     pcap_close(handle); // Close the handle
+    
+    // Close log file if it was opened
+    if (log_file != NULL) {
+        log_message("Closing log file\n");
+        fclose(log_file);
+        log_file = NULL;
+    }
+    
     return 0;
 }
 
