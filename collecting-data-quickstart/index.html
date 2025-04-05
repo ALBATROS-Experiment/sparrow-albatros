@@ -117,7 +117,7 @@
 <li>Compile the c-code that reads UDP packets and writes them to disk with <code>make clean;make</code></li>
 <li>Run the c-code with superuser privilages <code>sudo ./dump_baseband</code></li>
 <li>Detach yourself from the screen session <code>ctrl</code>+<code>a</code>+<code>d</code></li>
-<li>Check that on-board correlations are being written to <code>~/data_auto_cross</code> and that baseband is being written to <code>/media/BASEBAND/baseband</code>. An easy way to do this is to <code>ls -lh</code> multiple times and watch files grow.</li>
+<li>Check that on-board correlations are being written to <code>~/data_auto_cross</code> and that baseband is being written to <code>/media/BASEBAND/baseband</code>. An easy way to do this is to <code>ls -lh</code> multiple times and watch files grow. Make sure the baseband is sensible (not all zeros or railed) by sniffing the packets and looking at hexdumps of the payloads with Wireshark. </li>
 </ol>
               
             </div>
