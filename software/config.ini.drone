@@ -1,0 +1,64 @@
+# Config.ini for the drone for Sparrow
+[paths]
+log_directory=/home/casper/logs
+dump_spectra_output_directory=/home/casper/data_auto_cross
+dump_baseband_output_directory=/media/BASEBAND/baseband
+# Path to temporarily store digital gain pre-quantization coefficients for dump_baseband C-code
+# <u64 coefficients of channels, one coefficient per freq channel
+coeffs_pol0_binary_path=/home/casper/.coeffs_pol0.bin
+coeffs_pol1_binary_path=/home/casper/.coeffs_pol1.bin
+# below fpg file has 1bit logic
+#fpgfile=/home/casper/sparrow-albatros/firmware/sparrow_albatros_spec/outputs/sparrow_albatros_spec_2025-03-08_0023-xc7z035.fpg
+#fpgfile=/home/casper/sparrow-albatros/firmware/sparrow_albatros_spec/outputs/sparrow_albatros_spec_2025-03-13_2149-xc7z035.fpg
+# belwo, corrected clock, simulated
+#fpgfile=/home/casper/sparrow-albatros/firmware/sparrow_albatros_spec/outputs/sparrow_albatros_spec_2025-03-14_0241-xc7z035.fpg
+# Tested latest compile, same logic as above .fpg file
+fpgfile=/home/casper/sparrow-albatros/firmware/sparrow_albatros_spec/outputs/sparrow_albatros_spec_2025-03-27_1641-xc7z035.fpg
+
+
+[networking]
+# Host is the arm core's IP, this should be the same as the dest_ip
+host=10.10.11.99
+# src_host is the src ip address from which our FPGA sends packets
+src_host=192.168.41.10
+# for max bytes per packet, bear in mind that MTU=1500
+max_bytes_per_packet=1300
+
+[fpga_register_vals]
+dest_ip=10.10.11.99
+dest_prt=7417
+# correlator acc-length is set to 2^18=262144 (~4.3 seconds)
+#accumulation_length=262144
+accumulation_length=393216
+# full shift shedule: TODO integrate this
+fftshift=0xffff
+# Technically pols are names that map to addresses, not values themselves, but this seemd the most sensible place to put them
+pols=pol00 pol11 pol01i pol01r
+metadata_registers=fft_of_count acc_cnt
+
+[baseband]
+# DAQ/data Version number, serialized in baseband header, tells analysis script how to parse header and data
+version_major=1
+version_minor=1
+# Size of baseband files in GibiBytes, default is 0.5
+file_size=0.1
+# The adc clock, in MHz, (=2x the Fabric)
+adc_clk=250
+# In 1-bit mode, channels must be even-numbered and each starting index must be even
+# This is because they are paired to form byte-wide bus in firmware (01 23 45 67 89 etc.)
+#channels=1564:1578 1834:1854
+channels=818:822
+coeffs=818:822:1048576
+#channels=40:120
+#channels=20:340
+#coeffs=20:340:2147483647
+# bits can take 1 or 4
+bits=4
+
+[spectra]
+# CORRELATION SPECTRA OPTIONS
+# compress_scio_files can be set to bzip2 or None
+compress_scio_files=bzip2
+diff_scio_files=True
+
+
