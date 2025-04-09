@@ -24,7 +24,7 @@ Now that you've tunneled in, you can run data collection.
 11. Compile the c-code that reads UDP packets and writes them to disk with `make clean;make`
 12. Run the c-code with superuser privilages `sudo ./dump_baseband`
 13. Detach yourself from the screen session `ctrl`+`a`+`d`
-14. Check that on-board correlations are being written to `~/data_auto_cross` and that baseband is being written to `/media/BASEBAND/baseband`. An easy way to do this is to `ls -lh` multiple times and watch files grow.
+14. Check that on-board correlations are being written to `~/data_auto_cross` and that baseband is being written to `/media/BASEBAND/baseband`. An easy way to do this is to `ls -lh` multiple times and watch files grow. Make sure the baseband is sensible (not all zeros or railed) by sniffing the packets and looking at hexdumps of the payloads with Wireshark. 
 
 
 

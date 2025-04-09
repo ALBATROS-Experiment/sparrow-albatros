@@ -48,6 +48,9 @@ adc_clk=250
 #channels=1564:1578 1834:1854
 channels=818:822
 coeffs=818:822:1048576
+#channels=40:120
+#channels=20:340
+#coeffs=20:340:2147483647
 # bits can take 1 or 4
 bits=4
 

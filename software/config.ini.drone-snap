@@ -1,0 +1,42 @@
+[albatros2]
+# CRITICAL SETTINGS
+# Baseband
+bits=4
+channels=818:822
+channel_coeffs=818:822:1048576
+autotune=True
+# Data storage
+drive_status_table=drive_status.npz
+drive_models=Portable, SanDisk_SD9SN8W1T00, My_Book_25ED, My_Passport_264F, Expansion_Desk, ST16000NE000-2RW103, WDC_WD120EFBX-68B0EN0, BUP_Portable, Extreme_55AE, PSSD_T7_Shield
+drive_safety=99
+have_mux=False
+reboot_when_full=True
+# Overheating
+snap_cooldowntime=1800
+
+# OUTPUT SETTINGS
+# Spectra
+dump_spectra_output_directory=/home/pi/data_auto_cross
+pols=pol00 pol11 pol01i pol01r
+registers=sync_cnt pfb_fft_of acc_cnt
+diff_scio_files=True
+compress_scio_files=bzip2
+# Baseband
+mountpoint=/media/pi/BASEBAND
+dump_baseband_directory_name=baseband
+file_size=0.1
+# Logging
+log_directory=/home/pi/logs
+
+# NETWORK SETTINGS
+snap_ip=127.0.0.1
+snap_port=7147
+
+# FPGA SETTINGS
+fpg_file=/home/pi/albatros2_daq/firmware/quad_input_poco_gbe_2019-07-02_1237.fpg
+fftshift=0xffff
+accumulation_length=393216
+max_bytes_per_packet=1300
+synthesizer_clock_ref=10
+adc_max_retries=5
+
