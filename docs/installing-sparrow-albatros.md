@@ -23,3 +23,20 @@ If you want to install and this software on a different OS, here are a few thing
 - For the LEO Bodnar GPS module to work, copy `software/10-local.rules` to `/etc/udev/rules.d/`. Then reboot or reload the udevadm with `sudo udevadm control --reload`, `sudo udevadm trigger`. Check that it's working by running the `software/check_lb.py` script *as superuser*.
 - For to set up a reverse tunnel on boot you need to make a service. You can follow the example of the service at `/etc/systemd/system/reverse-tunnel-service-tb-stephenfay.service` which sets up a reverse tunnel to my twiddlebug user on boot. 
 
+Reverse tunnel service `reverse-tunnel-service-tb-stephenfay.service`
+```
+[Unit]
+Description=Reverse SSH tunnel
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/bin/ssh -N -R 18997:localhost:22 -p 2690 -i /home/casper/.ssh/id_rsa_sparrow_tb -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ExitOnForwardFailure=yes stephenfay@132.206.126.20
+RestartSec=30
+Restart=always
+User=casper
+
+[Install]
+WantedBy=multi-user.target
+```
+

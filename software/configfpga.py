@@ -13,6 +13,8 @@ import lbtools_l
 import casperfpga
 from sparrow_albatros import *
 
+# Set system time from LB timestamp
+with open("set_gps_clock.py") as f:exec(f.read()) 
 
 parser=argparse.ArgumentParser(description="Script to save baseband to disk")
 parser.add_argument('-l','--loggerlevel', type=str, default='INFO', help='Level of the logger, default is INFO, (Options are: DEBUG, INFO, WARNING)')
@@ -90,9 +92,5 @@ sparrow.tune(ref_clock=ADC_CLK,
         bits=BITS)
 
 #sparrow.cfpga.registers.gbe_en.write_int(0) # don't vomit packets everywhere
-
-
-
-
 
 

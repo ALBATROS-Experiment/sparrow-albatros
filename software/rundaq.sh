@@ -7,6 +7,9 @@ read -p "Press Enter to continue..."
 # Get current python executable
 PYTHON_PATH=$(which python)
 
+# Set the system clock
+$PYTHON_PATH set_gps_clock.py
+
 # Run FPGA configuration
 $PYTHON_PATH configfpga.py
 
