@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "This script will configure the fpga, run dump_baseband and dump_spec.py. Make sure that a drive is mounted and that config.ini is configured the way you want it before you proceed."
+echo "This script will configure the fpga, run dump_baseband and dump_spec.py. Make sure that a drive is mounted and that config.ini is configured the way you want it before you proceed. Also, don't run this in sudo."
 
 read -p "Press Enter to continue..."
 
