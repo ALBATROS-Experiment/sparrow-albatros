@@ -67,12 +67,12 @@ DEST_PRT=config_file.getint("fpga_register_vals", "dest_prt")
 ADC_CLK=config_file.getint("baseband", "adc_clk") # 250, but can differ depending on firmware
 ACC_LEN=config_file.getint("fpga_register_vals", "accumulation_length")
 chans=utils.get_channels_from_str(CHANNELS_STRING, BITS)
-print("chans", chans)
+logger.info("chans", chans)
 coeffs=utils.get_coeffs_from_str(COEFFS_STRING)
 spectra_per_packet=utils.get_nspec(chans, max_nbyte=MAX_BYTES_PER_PACKET)
 bytes_per_spectrum=chans.shape[0]
-print(f"Spec per packet: {spectra_per_packet}")
-print(f"Bytes per spectrum: {bytes_per_spectrum}")
+logger.info(f"Spec per packet: {spectra_per_packet}")
+logger.info(f"Bytes per spectrum: {bytes_per_spectrum}")
 
 
 logger.info("Writing bitstream to FPGA and initializing...")

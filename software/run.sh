@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# WARNING, this script isn't ready to run, not tested, it's just here for inspiration
+
 # Data Collection Script for Sparrow-Albatros System
 # This script automates the process of mounting drives, configuring the FPGA,
 # and starting data collection for both spectra and baseband data.
