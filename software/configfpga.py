@@ -22,7 +22,7 @@ parser.add_argument('-c','--configfile', type=str, default='/home/casper/sparrow
 args=parser.parse_args()
 
 # Set up the logger
-logger=logging.getLogger('albatros_dump_baseband')
+logger=logging.getLogger('configfpga_logger')
 if args.loggerlevel.upper() == 'INFO':
     logger_level = logging.INFO
 elif args.loggerlevel.upper() == 'DEBUG':
@@ -67,7 +67,7 @@ DEST_PRT=config_file.getint("fpga_register_vals", "dest_prt")
 ADC_CLK=config_file.getint("baseband", "adc_clk") # 250, but can differ depending on firmware
 ACC_LEN=config_file.getint("fpga_register_vals", "accumulation_length")
 chans=utils.get_channels_from_str(CHANNELS_STRING, BITS)
-logger.info("chans", chans)
+logger.info(f"chans {chans}")
 coeffs=utils.get_coeffs_from_str(COEFFS_STRING)
 spectra_per_packet=utils.get_nspec(chans, max_nbyte=MAX_BYTES_PER_PACKET)
 bytes_per_spectrum=chans.shape[0]
