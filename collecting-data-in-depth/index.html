@@ -51,6 +51,8 @@
                   <li class="toctree-l1"><a class="reference internal" href="../collecting-data-quickstart/">Collecting data (quick start)</a>
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="#">Collecting data (in depth)</a>
+    <ul class="current">
+    </ul>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Gateware</span></p>
@@ -91,7 +93,32 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                
+                <p>We start from the assumption that you have correctly setup the Sparrow-Albatros readout system.</p>
+<h2 id="boot-and-tunnel-into-the-sparrow">Boot and tunnel into the Sparrow</h2>
+<ol>
+<li>Power the RF-shielded box with a 24V power supply through the barrel port labelled IN. The Zynq's ARM core will boot off of the SD card mounted in the Sparrow's SD card slot. </li>
+<li>Connect your laptop to the Sparrow using an ethernet cable. </li>
+<li>The Sparrow's ARM is configured to statically assign it's Eth0 interface to the <code>10.10.11.99</code> ipv4 address. If you have trouble with the next two step you may need to configure the ethernet interface manually to be on the 10.10.xx.xx subnet (subnet mask 255.255.0.0, with an IP address e.g. 10.10.11.55)</li>
+<li>Check that you can see the Sparrow on the network with <code>ping 10.10.11.99</code>. The Sparrow's IP address on this LAN is set statically and should not change. Then ssh into the Sparrow with <code>ssh casper@10.10.11.99</code>. Enter the password <code>casper</code> when prompted. </li>
+</ol>
+<h2 id="collecting-data-getting-started-manually">Collecting data getting started manually</h2>
+<p>Now that you've tunneled in, you can run data collection. </p>
+<ol>
+<li>Find out the name of the drive connected with <code>lsblk</code>, it will probably be <code>sda1</code></li>
+<li>Mount the drive <code>sudo mount /dev/sda1 /media/BASEBAND</code></li>
+<li>Navigate to the software directory <code>cd ~/sparrow-albatros/software</code></li>
+<li>Modify the user configuration file <code>config.ini</code> to fit your needs</li>
+<li>Configure the FPGA with <code>python configfpga.py</code> and make sure the switch's lights are flashing consistently. </li>
+<li>Start a screen session for recording the on board correlations <code>screen -S spec</code></li>
+<li>From this screen session run <code>python dump_spectra.py</code>. You may need to run this in sudo in which case make sure to run the correct python interpreter. Find the one activated in the current VM with <code>which python</code>, then copy the result of this and run <code>sudo &lt;/path/to/python/interpreter&gt; dump_spectra.py</code></li>
+<li>Detach yourself from the screen session with <code>ctrl</code>+<code>a</code>+<code>d</code> </li>
+<li>Start a new screen session for running the baseband collection script <code>screen -S baseband</code></li>
+<li>If you are collecting 4-bit data run <code>python set_optimal_coeffs.py</code>, this uses the on board correlation to optimally set the digital gain coefficients at the requantization stage. [!NOTE] This can only be run at least 15 seconds after the FPGA has been configured (step 5)</li>
+<li>Compile the c-code that reads UDP packets and writes them to disk with <code>make clean;make</code></li>
+<li>Run the c-code with superuser privilages <code>sudo ./dump_baseband</code></li>
+<li>Detach yourself from the screen session <code>ctrl</code>+<code>a</code>+<code>d</code></li>
+<li>Check that on-board correlations are being written to <code>~/data_auto_cross</code> and that baseband is being written to <code>/media/BASEBAND/baseband</code>. An easy way to do this is to <code>ls -lh</code> multiple times and watch files grow. Make sure the baseband is sensible (not all zeros or railed) by sniffing the packets and looking at hexdumps of the payloads with Wireshark. </li>
+</ol>
               
             </div>
           </div><footer>
