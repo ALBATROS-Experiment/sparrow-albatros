@@ -1,14 +1,24 @@
 
-We start from the assumption that you have correctly setup the Sparrow-Albatros readout system.
+Started from a booted Saprrow system. 
+
+1. Boot the Sparrow system box, connect the ethernet port to your laptop with an ethernet cable (RJ45 connector, you'll need an ethernet port or dongle for your laptop)
+2. The Sparrow's ARM is configured to statically assign it's Eth0 interface to the `10.10.11.99` ipv4 address. If you have trouble with the next two step you may need to configure the ethernet interface manually to be on the 10.10.xx.xx subnet (subnet mask 255.255.0.0, with an IP address e.g. 10.10.11.55)
+3. Mount a hard drive connected over usbA port to this mountpoint: `/media/BASEBAND` with this command `sudo mount /dev/<your HD partition e.g. sda2> /media/BASEBAND`
+    - run `lsblk` to identify connected hard drives (Sparrow only supports ext4 formated hard drives)
+4. In your terminal, enter the data acquisition directory using the aliased shortcut `daq` (you should now have cd'd into `/home/casper/sparrow-albatros/software`)
+5. Adjust the `config.ini` configuration file to suit your needs
+6. Run the DAQ in sudo by executing `sudo ./rundaq`
+7. Make sure that baseband is being written 
+
+
 
 ## Boot and tunnel into the Sparrow
 1. Power the RF-shielded box with a 24V power supply through the barrel port labelled IN. The Zynq's ARM core will boot off of the SD card mounted in the Sparrow's SD card slot. 
 2. Connect your laptop to the Sparrow using an ethernet cable. 
-3. The Sparrow's ARM is configured to statically assign it's Eth0 interface to the `10.10.11.99` ipv4 address. If you have trouble with the next two step you may need to configure the ethernet interface manually to be on the 10.10.xx.xx subnet (subnet mask 255.255.0.0, with an IP address e.g. 10.10.11.55)
 4. Check that you can see the Sparrow on the network with `ping 10.10.11.99`. The Sparrow's IP address on this LAN is set statically and should not change. Then ssh into the Sparrow with `ssh casper@10.10.11.99`. Enter the password `casper` when prompted. 
 
 
-## Collecting data
+## Collecting data getting started manually
 Now that you've tunneled in, you can run data collection. 
 
 1. Find out the name of the drive connected with `lsblk`, it will probably be `sda1`
