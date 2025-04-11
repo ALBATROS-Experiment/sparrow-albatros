@@ -8,6 +8,7 @@ PYTHON_PATH=/home/casper/python3-venv/bin/python
 # cd into the DAQ software directory
 DAQ_PATH="/home/casper/sparrow-albatros/software"
 cd $DAQ_PATH
+echo "cd into daq"
 echo pwd
 
 # Set the system clock
@@ -30,21 +31,24 @@ while getopts "c:" opt; do
 done
 
 echo "Using config file: $CONFIG_FILE"
+cp $CONFIG_FILE config.ini
 
 # Run FPGA configuration
-echo "\nRunning configfpga.py with config file ${CONFIG_FILE}"
+echo ""
+echo "Running configfpga.py with config file ${CONFIG_FILE}"
 $PYTHON_PATH configfpga.py -c $CONFIG_FILE
 
-echo "\nWaiting 10 seconds for spectra to accumulate..."
+echo ""
+echo "Waiting 10 seconds for spectra to accumulate..."
 sleep 10 
 echo "done waiting, now running dump_spectra.py and dump_baseband"
 
 # Create and detach from spectra screen session
 screen -dmS spec sudo $PYTHON_PATH dump_spectra.py
-echo "screen: dumpm spectra launched"
+echo "screen: dump spectra launched"
  
 # Create baseband screen session
-screen -dmS baseband bash -c "$PYTHON_PATH set_optimal_coeffs.py && sleep 1 && sudo ./dump_baseband"
+screen -dmS baseband bash -c "$PYTHON_PATH set_optimal_coeffs.py && sleep 20 && sudo ./dump_baseband"
 echo "screen: dump baseband launched"
 
 #$PYTHON_PATH set_optimal_coeffs.py
@@ -52,3 +56,5 @@ echo "screen: dump baseband launched"
 #sudo ./dump_baseband
 
 echo "Done! Sessions running in background."
+
+
