@@ -83,7 +83,7 @@ sparrow.setup()
 sparrow.set_channel_order(chans, BITS)
 sparrow.set_channel_coeffs(coeffs, coeffs, BITS)
 sparrow.tune(ref_clock=ADC_CLK,
-        fftshift=0xffff, # TODO: integrate this, get this from config.ini
+        fftshift=0x555, # TODO: integrate this, get this from config.ini
         acc_len=ACC_LEN,
         dest_ip=DEST_IP,
         dest_prt=DEST_PRT,

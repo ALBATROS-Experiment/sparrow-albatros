@@ -102,6 +102,10 @@ if __name__=="__main__":
                 scio_files[pol] = scio.scio(join(outsubdir,f"{pol}.scio"), 
                         diff=DIFF_SCIO_FILES, 
                         compress=COMPRESS_SCIO_FILES)
+            for adc in ["adc0","adc1"]:
+                scio_files[adc] = scio.scio(join(outsubdir,f"{adc}.scio"),
+                        diff=DIFF_SCIO_FILES,
+                        compress=COMPRESS_SCIO_FILES)
             acc_cnt = 0
             while time.time()-start_time < 60*60: # new folder every hour
                 # read accumulation count from FPGA registers
@@ -126,6 +130,7 @@ if __name__=="__main__":
                             end_gps_timestamp = 0
                     if start_reg_data["acc_cnt"] != end_reg_data["acc_cnt"]:
                         logger.warning("Accumulation counter changed during read")
+                    adcss0_data,adcss1_data = sparrow.get_adc_snapshot()
                     for register in metadata_registers:
                         np.array(start_reg_data[register]).tofile(start_raw_files[register])
                         start_raw_files[register].flush()
@@ -145,9 +150,13 @@ if __name__=="__main__":
                         file_gps_timestamp2.flush()
                     for pol in pols:
                         scio_files[pol].append(pol_data[pol])
-                time.sleep(1) # wait so that while loop not always going
+                    scio_files["adc0"].append(adcss0_data)
+                    scio_files["adc1"].append(adcss1_data)
+                time.sleep(0.9) # wait so that while loop not always going
             for pol in pols:
                 scio_files[pol].close()
+            scio_files["adc0"].close()
+            scio_files["adc1"].close()
             for register in metadata_registers:
                 start_raw_files[register].close()
                 end_raw_files[register].close()

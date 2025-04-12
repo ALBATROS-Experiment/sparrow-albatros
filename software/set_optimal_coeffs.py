@@ -68,6 +68,11 @@ coeffs_pol0, coeffs_pol1 = sparrow.get_optimal_coeffs_from_acc(chans_fpga[::2]) 
 logger.info("Setting coeffs on the FPGA")
 sparrow.set_channel_coeffs(coeffs_pol0, coeffs_pol1, bits=4)
 logger.info("Writing coeffs to secret binary for handoff to dump_baseband.c")
+logger.info(f"chans_fpga:\n{chans_fpga}")
+logger.info(f"coeffs_pol0:\n{coeffs_pol0[chans_fpga[::2]]}")
+logger.info(f"coeffs_pol0 log2:\n{np.log2(coeffs_pol0[chans_fpga[::2]])}")
+logger.info(f"coeffs_pol1:\n{coeffs_pol1[chans_fpga[::2]]}")
+logger.info(f"coeffs_pol1 log2:\n{np.log2(coeffs_pol1[chans_fpga[::2]])}")
 with open(COEFFS_POL0_BINARY_PATH,"wb") as f:
     f.write(np.array(coeffs_pol0[chans_fpga[::2]],dtype='<Q').tobytes())
 with open(COEFFS_POL1_BINARY_PATH,"wb") as f:
