@@ -3,7 +3,7 @@ Bit growth in FFT, first compile *without thorough simulation or hardware testin
 - `sparrow_albatros_spec_2025-04-17_2115-xc7z035.fpg`
 
 **Imperative Summary**
-The (12-stage) FFT bit-grows by 6 bits, which should raise the FFT noise-floor to the maximum given that the polyphase structure adds 6 bits of padding. I chose to get rid of a few bits in the on board correlator so that the fatter outputs could fit comfortably into 64-bit-wide accumulator BRAMs.
+The (12-stage) FFT bit-grows by 6 bits, which should lower the FFT noise-floor to the minimum given that the polyphase structure adds 6 bits of padding. I chose to get rid of a few bits in the on board correlator so that the fatter outputs could fit comfortably into 64-bit-wide accumulator BRAMs.
 
 Key decisions made: 
 - The correlator can accumulate up to 68 seconds but we don't usually correlate more than 6 seconds. This comes at the expense of a few LSBs. We can trade 1 LSB for a doubling in the amount of correlation time.
