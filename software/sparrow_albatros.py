@@ -201,31 +201,33 @@ class AlbatrosDigitizer(SparrowAlbatros):
             dest_prt, spectra_per_packet, bytes_per_spectrum,
             bits, dest_mac:int=0):
         """
-        Setup the FPGA firmware by tuning the input registers.
-        Perform sanity check on each after setting the value. 
+        This method "tunes" the FPGA Gateware's input registers to suit the 
+        user's needs.
+
         - Assumes fpga has been programmed and cfpga is running. 
         - Sets values in FPGA's programmable Registers and BRAMs. 
-        - Basic health checks of FPGA output values, e.g. overflows. 
+        - Basic sanity checks of FPGA output values, e.g. FFT overflows. 
 
-        :param ref_clock: Reference clock in MHz. 
-        :type ref_clock: float (int?)
+        Args:
+            ref_clock (float): Reference clock in MHz
+            fftshift (int): FFT shift schedule. This int is re-interpreted as a 
+                sequence of bits, the 12 LSBs are used to define the shift 
+                schedule. Do 1/0 for on/off.\*
+            acc_len (int): Number of spectra accumulated to integrate correlations.\* 
+            dest_ip (str): IP address to send packets to. The input is an IPV4 
+                string following the convention "x.x.x.x", e.g. "192.168.0.1". 
+                This IP address is reinterpreted as an int and that value is 
+                written to a register on the FPGA. 
+            dest_prt (int): Destination port number.\*
+            spectra_per_packet (int): Number of spectra to include in each UDP 
+                packet.\*
+            bytes_per_spectrum (int): Number of bytes in one quantized spectrum.\*
+            bits (int): Number of bits per real/imaginary componant after 
+                requantization. Takes values 1 or 4. 
+            dest_mac (int): *Not yet implemented.* Configure the destination MAC 
+                address. 
 
-        :param fftshift: Register Value. FFT shift schedule, bits 1/0 for on/off.
-        :type fftshift: int
-        :param acc_len: RV. Number of spectra accumulated to integrate correlations. 
-        :type acc_len: int
-        :param dest_ip: RV. IP address to send packets to. Turn into int before writing. 
-        :type dest_ip: str
-        :param dest_prt: RV. Packet destination port number. 
-        :type dest_prt: int
-        :param spectra_per_packet: RV. Number of specs to write in each UDP packet. 
-        :type spectra_per_packet: int
-        :param bytes_per_spectrum: RV. Number of bytes in one, quantized spec. 
-        :type bytes_per_spectrum: int
-        :param bits: Requantization mode, can be either 1 or 4 bits.
-        :type bits: int
-
-        JF reccomends using netcat for writing packets to file for test. 
+        \* This parameter's value gets written to a register on the FPGA.
         """
         MTU=1500 # max number of bytes in a packet
         assert spectra_per_packet < (1<<5), "spec-per-pack too large for slice, aborting"

@@ -5,6 +5,23 @@ theme:
   hljs_languages:
     - python
     - c
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: ["./software"]
+          options:
+            show_source: true
+            show_root_heading: true
+            heading_level: 3
+            show_category_heading: false
+            members_order: source
+            inherited_members: false
+            special_members: false
+            docstring_style: google
+extra_javascript:
+  - wavedrom-init.js
 markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
@@ -14,11 +31,12 @@ extra_css:
 nav: 
   - Home: index.md
   - Embedded Software:
-    - Collecting data (quick start): collecting-data-quickstart.md
-    - Collecting data (in depth): collecting-data-in-depth.md
+    - Run the DAQ, collect data: data-collection.md
+    - Tuning the gateware: tuning-the-gateware.md
   - Gateware:
     - Installing the Toolchain: installing-the-toolchain.md
-    - Gateware Design Overview: gateware-design.md
-    - Gateware: gateware-documentation.md
+    - Design Overview: gateware-design.md
+    - Modify and Simulate: gateware-modify-simulate.md
+    - Compile, Synthesize, Implement: gateware-compile-synthesize-implement.md
   - Disk Images:
     - Installing Sparrow Albatros: installing-sparrow-albatros.md

@@ -11,7 +11,7 @@ The digital signal processing logic starts at the ADCs, gets PFB'd (Filter + FFT
                                       --> 4bit quant |   /
 ```
 
-## Forword on the Simulink-CASPER gateware design paradigm
+## Foreword on the Simulink-CASPER gateware design paradigm
 The Simulink (Matlab) and CASPER framework abstracts away the nitty gritty plumbing inherent to modern (2025) FPGA programming in regular text-based HDLs. There are good, bad, and ugly things about this. On the good side, the user can jump right in and design, simulate, compile, implement, and synthesise a basic design targeted for a supported FPGA. The simulation aspect is worth emphasising because it's very easy to write a bug into logic design and it's often very hard to catch it without simulation. On the bad side it is impossible to track small diffs with modern version control tools (git) between two commits because the .slx files, being diagramatic rather than text based, are big and stored in compressed binary format. And the ugly side which is that the toolchain is very brittle and annoying to set up. 
 
 Once you have the toolchain running and are ready to assemble your first design, you'll notice that there are many different types of color-coded block. 
@@ -57,9 +57,23 @@ The one bit re-quantization logic is just a bunch of comparators (> or <).
 In parallel we quantize each component (real/imaginary) of each frequency channel to four bits. To exploit the full range of bits excersised by 4-bit quantization we apply digital gain to each frequency channel individually. The gain in each channel is set by the user through the `coeffs_pol0`/`coeffs_pol1` registers. The result is saturated against a floor and ceiling of the 4-bit range (-/+0.875) to wrapping (overflow). This image shows the logic for one of four quantization signal paths is shown.
 ![image](https://github.com/user-attachments/assets/681d4e86-7b5c-44b6-9e64-b2f9b52ff31f)
 
-## Packetiser 
+## Packetiser
 The packetiser *TODO: explaim more*
 ![image](https://github.com/user-attachments/assets/d4f9f32a-99fe-4119-9472-fe3d81c45a14)
+
+TODO: actual wavedrom diagram, below is dummy
+<script type="WaveDrom">
+{
+  "signal": [
+    {"name": "clk", "wave": "p.....|..."},
+    {"name": "dat", "wave": "x.345x|=.x", "data": ["head", "body", "tail", "data"]},
+    {"name": "req", "wave": "0.1..0|1.0"},
+    {},
+    {"name": "ack", "wave": "1.....|01."}
+  ]
+}
+</script>
+
 
 blah blih blough
 ![image](https://github.com/user-attachments/assets/7c499f13-fe07-4ca6-aa7e-0b83687c7edd)
@@ -74,9 +88,14 @@ Once the data has been packetized, it goes into the `one_gbe` block, and the CAS
 ![image](https://github.com/user-attachments/assets/81af2f1e-c9aa-4a68-b5d5-fb50447d2e5a)
 
 
-## On board Correlator
-The signal splits into another path after the FFT into an on-chip correlator. This design targets the Sparrow board which only has two ADC inputs (known colloquially as 'pol0' and 'pol1'). The power in each pol is computed with a simple accumulator. Real and imaginary components of the cross correlation are similarly calculated. The result is dumped periodically into addressable BRAM registers `pol00`, `pol11`, `pol01r`, `pol01i`. 
+## On-board correlator
+The signal path branches after the FFT. In the previous section we looked at re-quantization, data selection, and UDP packetizing, here we look at the second branch down-stream of the FFT: the on board correlator (OBC). The OBC computes the auto and cross correlations of the two digital signals it has access to. The power in each pol is computed with a simple accumulator. Real and imaginary components of the cross correlation are similarly calculated. The result is dumped periodically into addressable BRAM registers `pol00`, `pol11`, `pol01r`, `pol01i`. 
 ![image](https://github.com/user-attachments/assets/b76d2983-9580-4acd-8d1c-ef4f29060695)
+
+### Correlator accumulator book-keeping
+It's important to do some book-keeping to make sure the correlator BRAMs won't overflow. If the signal is `U37_36` and the accumulator BRAM is `U64_35` then we can only accumulate `2^28` samples samples (per channel), in seconds the accumulator BRAM fills up in `2^28*4096/250e6 = 4398` seconds, which is over an hour. We will never want to accumulate more than a few seconds. 
+
+However, the calculus changes if we implement FFT bit-growth to avoid doing a full shift schedule. If we grow the data by one bit on every FFT butterfly stage we're eating up 12 bits, which means that it becomes logically possible for the accumulator BRAMs to overflow after only one second, which is unacceptable. This means we either have to grow our BRAMs or do something to reduce the bit depth of these numbers. 
 
 ## User read/writeable registers
 We make use of all named addressable registers in this design so it's worth knowing what each of them does. (The left-pointing pentagonal tags mean *goto* and are paired with right-pointing ones of the same name.)
