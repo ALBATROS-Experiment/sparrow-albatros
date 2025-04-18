@@ -5,16 +5,17 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>Collecting data (in depth) - Sparrow Albatros</title>
+    <title>Run the DAQ, collect data - Sparrow Albatros</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
         <link href="../stylesheets/extra.css" rel="stylesheet" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Collecting data (in depth)";
-        var mkdocs_page_input_path = "collecting-data-in-depth.md";
+        var mkdocs_page_name = "Run the DAQ, collect data";
+        var mkdocs_page_input_path = "data-collection.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -48,20 +49,24 @@
               </ul>
               <p class="caption"><span class="caption-text">Embedded Software</span></p>
               <ul class="current">
-                  <li class="toctree-l1"><a class="reference internal" href="../collecting-data-quickstart/">Collecting data (quick start)</a>
-                  </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Collecting data (in depth)</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Run the DAQ, collect data</a>
     <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#checking-and-troubleshooting">Checking and troubleshooting</a>
+    </li>
     </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tuning-the-gateware/">Tuning the gateware</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Gateware</span></p>
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../installing-the-toolchain/">Installing the Toolchain</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../gateware-design/">Gateware Design Overview</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../gateware-design/">Design Overview</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../gateware-documentation/">Gateware</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../gateware-modify-simulate/">Modify and Simulate</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../gateware-compile-synthesize-implement/">Compile, Synthesize, Implement</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Disk Images</span></p>
@@ -84,7 +89,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
           <li class="breadcrumb-item">Embedded Software</li>
-      <li class="breadcrumb-item active">Collecting data (in depth)</li>
+      <li class="breadcrumb-item active">Run the DAQ, collect data</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -93,15 +98,26 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <p>We start from the assumption that you have correctly setup the Sparrow-Albatros readout system.</p>
-<h2 id="boot-and-tunnel-into-the-sparrow">Boot and tunnel into the Sparrow</h2>
+                <h2 id="quick-start">Quick start</h2>
 <ol>
-<li>Power the RF-shielded box with a 24V power supply through the barrel port labelled IN. The Zynq's ARM core will boot off of the SD card mounted in the Sparrow's SD card slot. </li>
-<li>Connect your laptop to the Sparrow using an ethernet cable. </li>
-<li>The Sparrow's ARM is configured to statically assign it's Eth0 interface to the <code>10.10.11.99</code> ipv4 address. If you have trouble with the next two step you may need to configure the ethernet interface manually to be on the 10.10.xx.xx subnet (subnet mask 255.255.0.0, with an IP address e.g. 10.10.11.55)</li>
-<li>Check that you can see the Sparrow on the network with <code>ping 10.10.11.99</code>. The Sparrow's IP address on this LAN is set statically and should not change. Then ssh into the Sparrow with <code>ssh casper@10.10.11.99</code>. Enter the password <code>casper</code> when prompted. </li>
+<li><strong>Power and boot</strong> the Sparrow system box, connect the ethernet port to your laptop with an ethernet cable (RJ45 connector, you'll need an ethernet port or dongle for your laptop)</li>
+<li><strong>SSH</strong> into the Ubuntu OS running on the Sparrow's ARM core with <code>ssh casper@10.10.11.99</code>, enter the password, "casper", when prompted. The Sparrow's ARM is configured to statically assign it's Eth0 interface to the <code>10.10.11.99</code> ipv4 address. If you have trouble with the next two step you may need to configure you're laptop's wired ethernet interface manually to be on the 10.10.xx.xx subnet (subnet mask 255.255.0.0, with an IP address e.g. 10.10.11.55)</li>
+<li><strong>Mount a hard drive</strong> connected over usbA port to this mountpoint: <code>/media/BASEBAND</code> with this command <code>sudo mount /dev/&lt;your HD partition e.g. sda2&gt; /media/BASEBAND</code>. Then run <code>lsblk</code> to identify connected hard drives (Sparrow only supports ext4 formated hard drives). Make sure that the HDD's mounted partition has a <code>/baseband</code> directory.</li>
+<li>Enter the data acquisition directory using the aliased shortcut <code>daq</code> (you should now have cd'd into <code>/home/casper/sparrow-albatros/software</code>).</li>
+<li>Edit the <code>config.ini</code> configuration file to suit your needs.</li>
+<li>Run the DAQ in sudo by executing <code>sudo ./rundaq.sh</code>.</li>
 </ol>
-<h2 id="collecting-data-getting-started-manually">Collecting data getting started manually</h2>
+<p>That's it! </p>
+<h3 id="checking-and-troubleshooting">Checking and troubleshooting</h3>
+<ul>
+<li>Verify that baseband is writing to <code>/media/BASEBAND/baseband</code>, that on-board-correlated data is writing to <code>/home/casper/data_auto_cross</code>, and that logs are writing to <code>/home/casper/logs</code>. </li>
+<li>If baseband is not writing, open up Wireshark on your laptop and snoop on your wired connection in promiscuous mode. If baseband is dumping correctly you'll be met with a deluge of UDP packets. Look at one of those UDP packets and make sure the UDP payload is not all zeros. You should be weary if there are too many zeros, the data is almost incompressible (i.e. very high entropy).  </li>
+<li>To verify the integrity of your signal, use -X port forwarding and run <code>python livespec.py 0 125</code> (in the <code>daq</code> directory). </li>
+</ul>
+<h2 id="in-depth">In Depth</h2>
+<p>If you're going to modify the code it's good to know how it all sticks together. </p>
+<hr />
+<p>TODO: everything below here needs to be deleted/adapted to explain what rundaq.sh does instead</p>
 <p>Now that you've tunneled in, you can run data collection. </p>
 <ol>
 <li>Find out the name of the drive connected with <code>lsblk</code>, it will probably be <code>sda1</code></li>
@@ -123,8 +139,8 @@
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../collecting-data-quickstart/" class="btn btn-neutral float-left" title="Collecting data (quick start)"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../installing-the-toolchain/" class="btn btn-neutral float-right" title="Installing the Toolchain">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href=".." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../tuning-the-gateware/" class="btn btn-neutral float-right" title="Tuning the gateware">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -147,10 +163,10 @@
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../collecting-data-quickstart/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../installing-the-toolchain/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../tuning-the-gateware/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
@@ -158,6 +174,7 @@
     <script>var base_url = "..";</script>
     <script src="../js/theme_extra.js"></script>
     <script src="../js/theme.js"></script>
+      <script src="../wavedrom-init.js"></script>
       <script src="../search/main.js"></script>
     <script>
         jQuery(function () {

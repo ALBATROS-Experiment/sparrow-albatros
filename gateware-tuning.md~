@@ -1,0 +1,3 @@
+# Tuning the Gateware from Python
+
+In the [Design Overview](gateware-design.md) section, you saw how the gateware is designed diagramatically in Matlab at a high level of abstraction. 

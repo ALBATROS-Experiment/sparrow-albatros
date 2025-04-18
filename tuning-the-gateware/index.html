@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Tuning the gateware - Sparrow Albatros</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="../stylesheets/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Tuning the gateware";
+        var mkdocs_page_input_path = "tuning-the-gateware.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/c.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Sparrow Albatros
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Embedded Software</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../data-collection/">Run the DAQ, collect data</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Tuning the gateware</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#reading-and-writing-to-programmable-registers">Reading and Writing to Programmable Registers</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#sparrow_albatros.AlbatrosDigitizer.setup">setup</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#set-channel-order">Set channel order</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#sparrow_albatros.AlbatrosDigitizer.set_channel_order">set_channel_order</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#tune">Tune</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#sparrow_albatros.AlbatrosDigitizer.tune">tune</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#the-communication-stack">The communication stack</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Gateware</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../installing-the-toolchain/">Installing the Toolchain</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../gateware-design/">Design Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../gateware-modify-simulate/">Modify and Simulate</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../gateware-compile-synthesize-implement/">Compile, Synthesize, Implement</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Disk Images</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../installing-sparrow-albatros/">Installing Sparrow Albatros</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Sparrow Albatros</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Embedded Software</li>
+      <li class="breadcrumb-item active">Tuning the gateware</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="tuning-the-gateware-from-python">Tuning the Gateware from Python</h1>
+<p>The <a href="../gateware-design/">Design Overview</a> section documents how the gateware is designed diagramatically in Matlab at a high level of abstraction. If you are unfamiliar with gateware design or are finding this section confusing you may want to read that section before this one.</p>
+<h3 id="reading-and-writing-to-programmable-registers">Reading and Writing to Programmable Registers</h3>
+<p>In Python the CasperFpga class allows you to interface with named FPGA registers. The gateware needs to be tuned and configured according to the user's needs, such as which channels to pick and which what bit mode to select. This configuration happens in five steps. </p>
+<ul>
+<li>Setup. TODO</li>
+<li>Set the channel order. Re-order the frequency channels so that the UDP payload packetizer selects the correct channels. For example, to select only channels 120:136 you must re-order the channels so that 120:136 occur at the beginning of each frame. For deeper explanation of why we need to do this see the <a href="../gateware-design/#packetiser">packetizer section</a>. </li>
+<li>Optionally set the 4 bit coefficients. </li>
+<li>Tune. TODO</li>
+<li>Optionally update the 4 bit coefficients based on OBC data. TODO</li>
+</ul>
+<h3 id="setup">Setup</h3>
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="sparrow_albatros.AlbatrosDigitizer.setup" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">sparrow_albatros</span><span class="o">.</span><span class="n">AlbatrosDigitizer</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents first">
+
+
+            <details class="quote">
+              <summary>Source code in <code>software/sparrow_albatros.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Programming FPGA&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">program_fpga</span><span class="p">()</span>
+    <span class="n">fpga_clock_mhz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfpga</span><span class="o">.</span><span class="n">estimate_fpga_clock</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Estimated FPGA clock is </span><span class="si">{</span><span class="n">fpga_clock_mhz</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Initializing ADCs&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">initialize_adc</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div><h3 id="set-channel-order">Set channel order</h3>
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="sparrow_albatros.AlbatrosDigitizer.set_channel_order" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">sparrow_albatros</span><span class="o">.</span><span class="n">AlbatrosDigitizer</span><span class="o">.</span><span class="n">set_channel_order</span><span class="p">(</span><span class="n">channels</span><span class="p">,</span> <span class="n">bits</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents first">
+
+        <p>Sets the firmware channels</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>software/sparrow_albatros.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">set_channel_order</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">bits</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sets the firmware channels&quot;&quot;&quot;</span>
+    <span class="c1"># hard coded names of brams</span>
+    <span class="k">if</span> <span class="n">bits</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span> <span class="n">channel_map</span><span class="o">=</span><span class="s2">&quot;one_bit_reorder_map1&quot;</span>
+    <span class="k">elif</span> <span class="n">bits</span><span class="o">==</span><span class="mi">4</span><span class="p">:</span> <span class="n">channel_map</span><span class="o">=</span><span class="s2">&quot;four_bit_reorder_map1&quot;</span> 
+    <span class="k">else</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bits must be 1 or 4, not </span><span class="si">{</span><span class="n">bits</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">cfpga</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">channel_map</span><span class="p">,</span> <span class="n">channels</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;&gt;H&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">tobytes</span><span class="p">(),</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div><h3 id="tune">Tune</h3>
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="sparrow_albatros.AlbatrosDigitizer.tune" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">sparrow_albatros</span><span class="o">.</span><span class="n">AlbatrosDigitizer</span><span class="o">.</span><span class="n">tune</span><span class="p">(</span><span class="n">ref_clock</span><span class="p">,</span> <span class="n">fftshift</span><span class="p">,</span> <span class="n">acc_len</span><span class="p">,</span> <span class="n">dest_ip</span><span class="p">,</span> <span class="n">dest_prt</span><span class="p">,</span> <span class="n">spectra_per_packet</span><span class="p">,</span> <span class="n">bytes_per_spectrum</span><span class="p">,</span> <span class="n">bits</span><span class="p">,</span> <span class="n">dest_mac</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents first">
+
+        <p>This method "tunes" the FPGA Gateware's input registers to suit the 
+user's needs.</p>
+<ul>
+<li>Assumes fpga has been programmed and cfpga is running. </li>
+<li>Sets values in FPGA's programmable Registers and BRAMs. </li>
+<li>Basic sanity checks of FPGA output values, e.g. FFT overflows. </li>
+</ul>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>ref_clock</code></b>
+                  (<code><span title="float">float</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Reference clock in MHz</p>
+              </div>
+            </li>
+            <li>
+              <b><code>fftshift</code></b>
+                  (<code><span title="int">int</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>FFT shift schedule. This int is re-interpreted as a 
+sequence of bits, the 12 LSBs are used to define the shift 
+schedule. Do 1/0 for on/off.*</p>
+              </div>
+            </li>
+            <li>
+              <b><code>acc_len</code></b>
+                  (<code><span title="int">int</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Number of spectra accumulated to integrate correlations.* </p>
+              </div>
+            </li>
+            <li>
+              <b><code>dest_ip</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>IP address to send packets to. The input is an IPV4 
+string following the convention "x.x.x.x", e.g. "192.168.0.1". 
+This IP address is reinterpreted as an int and that value is 
+written to a register on the FPGA. </p>
+              </div>
+            </li>
+            <li>
+              <b><code>dest_prt</code></b>
+                  (<code><span title="int">int</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Destination port number.*</p>
+              </div>
+            </li>
+            <li>
+              <b><code>spectra_per_packet</code></b>
+                  (<code><span title="int">int</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Number of spectra to include in each UDP 
+packet.*</p>
+              </div>
+            </li>
+            <li>
+              <b><code>bytes_per_spectrum</code></b>
+                  (<code><span title="int">int</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Number of bytes in one quantized spectrum.*</p>
+              </div>
+            </li>
+            <li>
+              <b><code>bits</code></b>
+                  (<code><span title="int">int</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Number of bits per real/imaginary componant after 
+requantization. Takes values 1 or 4. </p>
+              </div>
+            </li>
+            <li>
+              <b><code>dest_mac</code></b>
+                  (<code><span title="int">int</span></code>, default:
+                      <code>0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p><em>Not yet implemented.</em> Configure the destination MAC 
+address. </p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>        <p>* This parameter's value gets written to a register on the FPGA.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>software/sparrow_albatros.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">tune</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_clock</span><span class="p">,</span> <span class="n">fftshift</span><span class="p">,</span> <span class="n">acc_len</span><span class="p">,</span> <span class="n">dest_ip</span><span class="p">,</span> 
+        <span class="n">dest_prt</span><span class="p">,</span> <span class="n">spectra_per_packet</span><span class="p">,</span> <span class="n">bytes_per_spectrum</span><span class="p">,</span>
+        <span class="n">bits</span><span class="p">,</span> <span class="n">dest_mac</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method &quot;tunes&quot; the FPGA Gateware&#39;s input registers to suit the </span>
+<span class="sd">    user&#39;s needs.</span>
+
+<span class="sd">    - Assumes fpga has been programmed and cfpga is running. </span>
+<span class="sd">    - Sets values in FPGA&#39;s programmable Registers and BRAMs. </span>
+<span class="sd">    - Basic sanity checks of FPGA output values, e.g. FFT overflows. </span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ref_clock (float): Reference clock in MHz</span>
+<span class="sd">        fftshift (int): FFT shift schedule. This int is re-interpreted as a </span>
+<span class="sd">            sequence of bits, the 12 LSBs are used to define the shift </span>
+<span class="sd">            schedule. Do 1/0 for on/off.\*</span>
+<span class="sd">        acc_len (int): Number of spectra accumulated to integrate correlations.\* </span>
+<span class="sd">        dest_ip (str): IP address to send packets to. The input is an IPV4 </span>
+<span class="sd">            string following the convention &quot;x.x.x.x&quot;, e.g. &quot;192.168.0.1&quot;. </span>
+<span class="sd">            This IP address is reinterpreted as an int and that value is </span>
+<span class="sd">            written to a register on the FPGA. </span>
+<span class="sd">        dest_prt (int): Destination port number.\*</span>
+<span class="sd">        spectra_per_packet (int): Number of spectra to include in each UDP </span>
+<span class="sd">            packet.\*</span>
+<span class="sd">        bytes_per_spectrum (int): Number of bytes in one quantized spectrum.\*</span>
+<span class="sd">        bits (int): Number of bits per real/imaginary componant after </span>
+<span class="sd">            requantization. Takes values 1 or 4. </span>
+<span class="sd">        dest_mac (int): *Not yet implemented.* Configure the destination MAC </span>
+<span class="sd">            address. </span>
+
+<span class="sd">    \* This parameter&#39;s value gets written to a register on the FPGA.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">MTU</span><span class="o">=</span><span class="mi">1500</span> <span class="c1"># max number of bytes in a packet</span>
+    <span class="k">assert</span> <span class="n">spectra_per_packet</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">5</span><span class="p">),</span> <span class="s2">&quot;spec-per-pack too large for slice, aborting&quot;</span>
+    <span class="k">assert</span> <span class="n">spectra_per_packet</span> <span class="o">*</span> <span class="n">bytes_per_spectrum</span> <span class="o">&lt;=</span> <span class="n">MTU</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;Packets too large, will cause fragmentation&quot;</span>
+    <span class="k">assert</span> <span class="n">bits</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Baseband requantization mode must be 1 or 4, not </span><span class="si">{</span><span class="n">bits</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="c1"># Assume bitstream already uploaded, data in self.cfpga</span>
+    <span class="c1"># Assume ADCs already initialized including that get_system_information...</span>
+    <span class="c1"># Inherit adc&#39;s logger level</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">adc</span><span class="o">.</span><span class="n">ref</span> <span class="o">=</span> <span class="n">ref_clock</span> <span class="c1"># Set reference clock for ADC</span>
+    <span class="c1"># ADC calibration assumed already aligned (?)</span>
+    <span class="c1"># Need to set the ADC gain?</span>
+    <span class="c1"># Get info from and set registers </span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FPGA clock: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cfpga</span><span class="o">.</span><span class="n">estimate_fpga_clock</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Set FFT shift schedule to </span><span class="si">{</span><span class="n">fftshift</span><span class="si">:</span><span class="s2">b</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">cfpga</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">pfb_fft_shift</span><span class="o">.</span><span class="n">write_int</span><span class="p">(</span><span class="n">fftshift</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Set correlator accumulation length to </span><span class="si">{</span><span class="n">acc_len</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">cfpga</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">acc_len</span><span class="o">.</span><span class="n">write_int</span><span class="p">(</span><span class="n">acc_len</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Reset GBE (UDP packetizer)&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">cfpga</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">gbe_rst</span><span class="o">.</span><span class="n">write_int</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">cfpga</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">gbe_en</span><span class="o">.</span><span class="n">write_int</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Set spectra-per-packet to </span><span class="si">{</span><span class="n">spectra_per_packet</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">cfpga</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">packetiser_spectra_per_packet</span><span class="o">.</span><span class="n">write_int</span><span class="p">(</span><span class="n">spectra_per_packet</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Set bytes-per-spectrum to </span><span class="si">{</span><span class="n">bytes_per_spectrum</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">cfpga</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">packetiser_bytes_per_spectrum</span><span class="o">.</span><span class="n">write_int</span><span class="p">(</span><span class="n">bytes_per_spectrum</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Set quantization bit mode to </span><span class="si">{</span><span class="n">bits</span><span class="si">}</span><span class="s2">-bits&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">bits</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfpga</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">sel</span><span class="o">.</span><span class="n">write_int</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">bits</span><span class="o">==</span><span class="mi">4</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfpga</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">sel</span><span class="o">.</span><span class="n">write_int</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;NOT YET IMPLEMENTED: Setting destination MAC address to </span><span class="si">{</span><span class="n">dest_mac</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># TODO: set destination MAC address</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Set destination IP address and port to </span><span class="si">{</span><span class="n">dest_ip</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">dest_prt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">cfpga</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">dest_ip</span><span class="o">.</span><span class="n">write_int</span><span class="p">(</span><span class="n">str2ip</span><span class="p">(</span><span class="n">dest_ip</span><span class="p">))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">cfpga</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">dest_prt</span><span class="o">.</span><span class="n">write_int</span><span class="p">(</span><span class="n">dest_prt</span><span class="p">)</span>
+    <span class="c1"># Do we need to set mac address?</span>
+    <span class="c1">#time.sleep(1.1) # dogmatically wait for regs to set before sending sync pulse</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">sync_pulse</span><span class="p">()</span>
+    <span class="n">fft_of_count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfpga</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">fft_of_count</span><span class="o">.</span><span class="n">read_uint</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">fft_of_count</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FFT overflowing: count=</span><span class="si">{</span><span class="n">fft_of_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No FFT overflows detected&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Enabling 1 GbE output&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">cfpga</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">gbe_en</span><span class="o">.</span><span class="n">write_int</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1">#self.logger.info(&quot;Leaving GBE reset high; pull it down manually once you think the negotiation has happened well!&quot;)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">cfpga</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">gbe_rst</span><span class="o">.</span><span class="n">write_int</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">gbe_overflow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfpga</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">tx_of_cnt</span><span class="o">.</span><span class="n">read_uint</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">gbe_overflow</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;GbE transmit overflowing: count=</span><span class="si">{</span><span class="n">gbe_overflow</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No GbE overflows detected&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Setup and tuning complete&quot;</span><span class="p">)</span>
+    <span class="k">return</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div><h3 id="the-communication-stack">The communication stack</h3>
+<p>You may be wondering how Python is able to read from and write to FPGA registers. </p>
+<p><TODO: explain how the gateware is configured with user read/write-able registers. Start with a section explaining the communication stack, how the python code talks to the tcpborphserver over http, how this server is configured as a service controlled by systemctl, the tcp borph server talks to (which chip?) over SPI, how the SPI commands talk to the FPGA, how the CASPER framework implements a piece of SPI logic that recieves commands and writes/reads data to/from programable registers. Finish this off with a paragraph about how the CASPER framework implements .fpg files after binary implementation, also reference the compile, synthesis, implementation.></p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../data-collection/" class="btn btn-neutral float-left" title="Run the DAQ, collect data"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../installing-the-toolchain/" class="btn btn-neutral float-right" title="Installing the Toolchain">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../data-collection/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../installing-the-toolchain/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../wavedrom-init.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
