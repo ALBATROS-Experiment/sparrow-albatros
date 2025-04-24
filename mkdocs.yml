@@ -42,6 +42,9 @@ nav:
     - Run the DAQ, collect data: data-collection.md
     - Tuning the gateware: tuning-the-gateware.md
     - Optimal Digital Gain Coefficients (4-bit): digital-gain-coefficients-4bit.ipynb
+    - Dumping baseband: dump-baseband.md
+    - Dumping correlated spectra: dump-spectra.md
+    - Networking: networking.md
   - Gateware:
     - Installing the Toolchain: installing-the-toolchain.md
     - Design Overview: gateware-design.md
@@ -49,3 +52,6 @@ nav:
     - Compile, Synthesize, Implement: gateware-compile-synthesize-implement.md
   - Disk Images:
     - Installing Sparrow Albatros: installing-sparrow-albatros.md
+  - Data Specification:
+    - Baseband: data-baseband.md
+    - Correlated Spectra: data-correlated-spectra.md
