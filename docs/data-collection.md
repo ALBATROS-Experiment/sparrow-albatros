@@ -1,3 +1,5 @@
+# Collecting data
+
 ## Quick start
 
 1. **Power and boot** the Sparrow system box, connect the ethernet port to your laptop with an ethernet cable (RJ45 connector, you'll need an ethernet port or dongle for your laptop)
@@ -9,7 +11,7 @@
 
 That's it! 
 
-### Checking and troubleshooting
+## Checking and troubleshooting
 
 - Verify that baseband is writing to `/media/BASEBAND/baseband`, that on-board-correlated data is writing to `/home/casper/data_auto_cross`, and that logs are writing to `/home/casper/logs`. 
 - If baseband is not writing, open up Wireshark on your laptop and snoop on your wired connection in promiscuous mode. If baseband is dumping correctly you'll be met with a deluge of UDP packets. Look at one of those UDP packets and make sure the UDP payload is not all zeros. You should be weary if there are too many zeros, the data is almost incompressible (i.e. very high entropy).  

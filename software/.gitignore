@@ -4,3 +4,4 @@ __pycache__
 *.npz
 *.bin
 inih_cloned/*
+compression/

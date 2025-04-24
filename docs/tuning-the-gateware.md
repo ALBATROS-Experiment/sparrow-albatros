@@ -2,7 +2,7 @@
 
 The [Design Overview](gateware-design.md) section documents how the gateware is designed diagramatically in Matlab at a high level of abstraction. If you are unfamiliar with gateware design or are finding this section confusing you may want to read that section before this one.
 
-### Reading and Writing to Programmable Registers
+## Reading and Writing to Programmable Registers
 
 In Python the CasperFpga class allows you to interface with named FPGA registers. The gateware needs to be tuned and configured according to the user's needs, such as which channels to pick and which what bit mode to select. This configuration happens in five steps. 
 
@@ -13,20 +13,36 @@ In Python the CasperFpga class allows you to interface with named FPGA registers
 - Optionally update the 4 bit coefficients based on OBC data. TODO
 
 
-### Setup 
+## Setup 
+
+TODO: write this section... 
 
 ::: sparrow_albatros.AlbatrosDigitizer.setup
 
+## Set channel order
 
-### Set channel order
+TODO: write this section... 
 
 ::: sparrow_albatros.AlbatrosDigitizer.set_channel_order
 
-### Tune
+## Tuning registers
+
+TODO: write this section... 
 
 ::: sparrow_albatros.AlbatrosDigitizer.tune
 
-### The communication stack
+
+## Tuning the 4-bit digital gain coefficients (special case)
+
+TODO: write this section... here's an outline: 
+- To avoid non-converging, iterative hell of capturing 4 bit data and increasing or decreasing the digital gain coefficients on each channel (that may take forever to converge in the intermittent RFI case), we one-shot the 4-bit gain coefficients by getting a power reading from the on-board-correlator. 
+- Tune gateware so that it's collecting data as you'd like it to
+- Wait for the on board correlator's accumulator to fill up
+- Read the auto-correlations power in each channel to estimate the optimal digital-gain coefficient needed
+- Write the set the 4-bit digital gain coefficients. 
+
+
+## The communication stack
 
 You may be wondering how Python is able to read from and write to FPGA registers. 
 

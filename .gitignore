@@ -4,3 +4,4 @@
 *.autosave
 *~
 site/*
+.DS_Store
