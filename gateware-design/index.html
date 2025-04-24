@@ -248,54 +248,200 @@
 <p>It's important to do some book-keeping to make sure the correlator BRAMs won't overflow. If the signal is <code>U37_36</code> and the accumulator BRAM is <code>U64_35</code> then we can only accumulate <code>2^28</code> samples samples (per channel), in seconds the accumulator BRAM fills up in <code>2^28*4096/250e6 = 4398</code> seconds, which is over an hour. We will never want to accumulate more than a few seconds. </p>
 <p>However, the calculus changes if we implement FFT bit-growth to avoid doing a full shift schedule. If we grow the data by one bit on every FFT butterfly stage we're eating up 12 bits, which means that it becomes logically possible for the accumulator BRAMs to overflow after only one second, which is unacceptable. This means we either have to grow our BRAMs or do something to reduce the bit depth of these numbers. </p>
 <h2 id="user-readwriteable-registers">User read/writeable registers</h2>
-<p>We make use of all named addressable registers in this design so it's worth knowing what each of them does. (The left-pointing pentagonal tags mean <em>goto</em> and are paired with right-pointing ones of the same name.)
-- <code>gbe_en</code> GigaBit Ethernet interface ENable. Single bit, 0 for disable, 1 for enable.
-- <code>gbe_rst</code> GigaBit Ethernet interface ReSeT. Single bit. Resets on transition from 0 to 1. 
-- <code>pack_rst</code> PACKetizer ReSeT. Single bit to reset packetizer logic, including spectrum counter, on transition from 0 to 1.
-- <code>cnt_rst</code> accumulator CoNTroller ReSeT. Single bit to reset accumulator control logic.
-- <code>acc_len</code> ACCumulation LENgth. UFix32 sets the number of spectra to accumulate for each correlation. (How long to integrate data, if you prefer to think that way.) This number times 4096/250e6 gives the accumulation time in seconds.
-- <code>dest_ip</code> Sets the DESTination IP addresss.
-- <code>dest_prt</code> Sets the DESTination PoRT.
-- <code>sync_cnt</code> (read only) does exactly nothing because I removed the logic that periodically syncs all the logic. Instead it just syncs stuff once on initialization. 
-- <code>acc_cnt</code> (read_only) ACCumulation CouNTer. Counts the number of spectra that have been accumulated.
-<img alt="image" src="https://github.com/user-attachments/assets/dc35ab2c-af51-4d35-8757-cc842d6fa51f" /></p>
+<p>We make use of all named addressable registers in this design so it's worth knowing what each of them does. (The left-pointing pentagonal tags mean <em>goto</em> and are paired with right-pointing ones of the same name.)</p>
+<ul>
+<li><code>gbe_en</code> GigaBit Ethernet interface ENable. Single bit, 0 for disable, 1 for enable.</li>
+<li><code>gbe_rst</code> GigaBit Ethernet interface ReSeT. Single bit. Resets on transition from 0 to 1. </li>
+<li><code>pack_rst</code> PACKetizer ReSeT. Single bit to reset packetizer logic, including spectrum counter, on transition from 0 to 1.</li>
+<li><code>cnt_rst</code> accumulator CoNTroller ReSeT. Single bit to reset accumulator control logic.</li>
+<li><code>acc_len</code> ACCumulation LENgth. UFix32 sets the number of spectra to accumulate for each correlation. (How long to integrate data, if you prefer to think that way.) This number times 4096/250e6 gives the accumulation time in seconds.</li>
+<li><code>dest_ip</code> Sets the DESTination IP addresss.</li>
+<li><code>dest_prt</code> Sets the DESTination PoRT.</li>
+<li><code>sync_cnt</code> (read only) does exactly nothing because I removed the logic that periodically syncs all the logic. Instead it just syncs stuff once on initialization. </li>
+<li><code>acc_cnt</code> (read_only) ACCumulation CouNTer. Counts the number of spectra that have been accumulated.</li>
+</ul>
+<p><img alt="image" src="https://github.com/user-attachments/assets/dc35ab2c-af51-4d35-8757-cc842d6fa51f" /></p>
 <p>Other user read/writeable registers are scattered throughout the design. </p>
-<p><code>sync_adc</code> SYNChronize ADC logic. Single bit pulse active on transition from 0 to 1.
-<img alt="image" src="https://github.com/user-attachments/assets/e336dff3-952b-436f-8287-6e3adeff3513" /></p>
-<p><code>sync</code> Creates SYNChronizing pulse that aligns each set of the DSP chain. Single bit pulse, active on transition from 0 to 1.
-<img alt="image" src="https://github.com/user-attachments/assets/32370d0a-f7d8-4995-b09a-27cb45661cee" /></p>
-<p><code>pfb_fft_shift</code> UFix12 determines the shift schedule. Each bit represents 0 for no shift, 1 for shift. Currently we have a full shift schedule. We may want to implement a bit-growth FFT so that we can have our cake (low noise floor from not shifting) and eat it too (no FFT overflows).
-<img alt="image" src="https://github.com/user-attachments/assets/cb700aac-7c46-4e74-89d4-23321878be34" /></p>
-<p><code>fft_of_count</code> (read only) FFT OverFlow COUNTer. Every time there's an overflow event in a frame +1 is added to this UFix32 register. 
-<img alt="image" src="https://github.com/user-attachments/assets/4000552f-d857-4f4f-9528-039c2766a375" /></p>
-<p><code>sel</code> SELects which requantization bit mode to choose from: 0 for 1bit, 1 for 4bits. 
-<img alt="image" src="https://github.com/user-attachments/assets/db427b50-23b6-4954-b8ca-67176bf47ce7" /></p>
-<p><code>tvg1_enable</code> Enables the the TVG right after the FFT stage. 0 to pass actual data, 1 to pass values read sequentially from the BRAM labelled <code>data</code>.<br />
-<img alt="image" src="https://github.com/user-attachments/assets/965644f1-5e7f-4e35-bacd-4cbea44bc282" /></p>
-<p><code>tvg16bit_enable</code> Enables the the TVG right after the 4bit requantization stage. 0 to pass actual data, 1 to pass values read sequentially from the BRAM labelled <code>data</code>.<br />
-<img alt="image" src="https://github.com/user-attachments/assets/92f41e80-d411-49e6-a489-9bc1cd704244" /></p>
-<p><code>four_bit_quant_clip_count</code> <em>TODO</em>
-<img alt="image" src="https://github.com/user-attachments/assets/61d9f33b-769a-4a5d-a905-d28dbd13ec01" /></p>
-<p><code>spectra_per_packet</code> <em>TODO</em>
-<img alt="image" src="https://github.com/user-attachments/assets/ce1b0a74-604e-4658-a7f9-52226a5e6038" /></p>
-<p><code>bytes_per_spectrum</code> <em>TODO</em>
-<img alt="image" src="https://github.com/user-attachments/assets/8a3a2dc9-285b-496d-9a9a-5f2839976327" /></p>
-<p><code>tx_of_cnt</code> <em>TODO</em>
-<img alt="image" src="https://github.com/user-attachments/assets/63ea5bae-0e51-4440-b4ee-a6fb8e3c42be" /></p>
+<p><code>sync_adc</code> SYNChronize ADC logic. Single bit pulse active on transition from 0 to 1.</p>
+<p><img alt="image" src="https://github.com/user-attachments/assets/e336dff3-952b-436f-8287-6e3adeff3513" /></p>
+<p><code>sync</code> Creates SYNChronizing pulse that aligns each set of the DSP chain. Single bit pulse, active on transition from 0 to 1.</p>
+<p><img alt="image" src="https://github.com/user-attachments/assets/32370d0a-f7d8-4995-b09a-27cb45661cee" /></p>
+<p><code>pfb_fft_shift</code> UFix12 determines the shift schedule. Each bit represents 0 for no shift, 1 for shift. Currently we have a full shift schedule. We may want to implement a bit-growth FFT so that we can have our cake (low noise floor from not shifting) and eat it too (no FFT overflows).</p>
+<p><img alt="image" src="https://github.com/user-attachments/assets/cb700aac-7c46-4e74-89d4-23321878be34" /></p>
+<p><code>fft_of_count</code> (read only) FFT OverFlow COUNTer. Every time there's an overflow event in a frame +1 is added to this UFix32 register. </p>
+<p><img alt="image" src="https://github.com/user-attachments/assets/4000552f-d857-4f4f-9528-039c2766a375" /></p>
+<p><code>sel</code> SELects which requantization bit mode to choose from: 0 for 1bit, 1 for 4bits. </p>
+<p><img alt="image" src="https://github.com/user-attachments/assets/db427b50-23b6-4954-b8ca-67176bf47ce7" /></p>
+<p><code>tvg1_enable</code> Enables the the TVG right after the FFT stage. 0 to pass actual data, 1 to pass values read sequentially from the BRAM labelled <code>data</code>.  </p>
+<p><img alt="image" src="https://github.com/user-attachments/assets/965644f1-5e7f-4e35-bacd-4cbea44bc282" /></p>
+<p><code>tvg16bit_enable</code> enables the the TVG right after the 4bit requantization stage. Write 0 to pass actual data, 1 to pass values read sequentially from the BRAM labelled <code>data</code>. </p>
+<p><img alt="image" src="https://github.com/user-attachments/assets/92f41e80-d411-49e6-a489-9bc1cd704244" /></p>
+<p><code>four_bit_quant_clip_count</code> <em>TODO</em></p>
+<p><img alt="image" src="https://github.com/user-attachments/assets/61d9f33b-769a-4a5d-a905-d28dbd13ec01" /></p>
+<p><code>spectra_per_packet</code> <em>TODO</em></p>
+<p><img alt="image" src="https://github.com/user-attachments/assets/ce1b0a74-604e-4658-a7f9-52226a5e6038" /></p>
+<p><code>bytes_per_spectrum</code> <em>TODO</em></p>
+<p><img alt="image" src="https://github.com/user-attachments/assets/8a3a2dc9-285b-496d-9a9a-5f2839976327" /></p>
+<p><code>tx_of_cnt</code> <em>TODO</em></p>
+<p><img alt="image" src="https://github.com/user-attachments/assets/63ea5bae-0e51-4440-b4ee-a6fb8e3c42be" /></p>
 <h2 id="user-bram-interfaces">User BRAM interfaces</h2>
-<p><code>tvg1_data</code> <em>TODO</em>
-<img alt="image" src="https://github.com/user-attachments/assets/f1de49f6-9061-4ba1-b7b4-c27abf0b19de" /></p>
-<p><code>tvg16bit_data</code> <em>TODO</em>
-<img alt="image" src="https://github.com/user-attachments/assets/04c53ba1-43c8-422d-bc29-7924458afd7a" /></p>
-<p><code>four_bit_quant_coeffs_pol0/1</code> <em>TODO</em>
-<img alt="image" src="https://github.com/user-attachments/assets/7125f44c-2cc7-484d-9558-ac815d39058f" />
-<img alt="image" src="https://github.com/user-attachments/assets/816aa56a-8e1f-4ce0-bb5f-e6100a04847f" /></p>
-<p><code>one_bit_reorder_map1</code> <em>TODO</em>
-<img alt="image" src="https://github.com/user-attachments/assets/5f86f08d-6f42-462d-9d6c-76480f68d785" /></p>
-<p><code>four_bit_reorder_map1</code> <em>TODO</em>
-<img alt="image" src="https://github.com/user-attachments/assets/a05cf769-554a-4171-aab9-7abd4db8154f" /></p>
-<p><code>pol00</code>, <code>pol11</code>, <code>pol01r</code>, <code>pol01i</code> <em>TODO</em>
-<img alt="image" src="https://github.com/user-attachments/assets/0badcd5c-f85f-4ed7-b32b-421b398a638c" /></p>
+<p><code>tvg1_data</code> <em>TODO</em></p>
+<p><img alt="image" src="https://github.com/user-attachments/assets/f1de49f6-9061-4ba1-b7b4-c27abf0b19de" /></p>
+<p><code>tvg16bit_data</code> <em>TODO</em></p>
+<p>Examples of this TVG's use can be found <a href="https://github.com/ALBATROS-Experiment/sparrow-albatros/blob/main/software/tvg_4bitq.py">here</a>. </p>
+<details>
+<summary>View example use</summary>
+
+
+<pre><code class="language-python">&quot;&quot;&quot;Example of writing to TVG&quot;&quot;&quot;
+
+#import numpy as np
+#
+#fpga.read(&quot;tvg16bit_data&quot;, 16, offset=0)
+#
+## 32 bit registers but 16bit LSB are sliced (i.e. 16 MSB are sliced off)
+#tvgbytes=np.ndarray.tobytes(np.array([0x0,0x0,0x05,0xaf]*(1&lt;&lt;11),dtype='&gt;i1'))
+#
+#fpga.write(&quot;tvg16bit_data&quot;, tvgbytes, offset=0)
+
+#def pack_into_4bit_tvg(pol0r:bytes, pol0i:bytes, pol1r:bytes, pol1i:bytes):
+#    &quot;&quot;&quot;Pack complex arrays into TVG right after 4bit requantizer&quot;&quot;&quot;
+#    for p in (pol0r,pol0i,pol1r,pol1i):assert len(p)==(1&lt;&lt;10)
+#    zeros=b'\x00'*(1&lt;&lt;10)
+
+###################
+
+TVG_FFT_SBRAM_SHAPE = (1&lt;&lt;11,)
+
+def pack_into_64(pol0r, pol0i, pol1r, pol1i):
+    &quot;&quot;&quot;Pack complex arrays into the TVG right after FFT block.
+
+    Numpy doesn't know about fix_16_15's, so we'll just use int16
+    and pretend that they are the fractional part, i.e. that our int16s
+    represent that number divided by (1&lt;&lt;15)=32_768.
+
+    :param np.ndarray(int16) pol0r:
+        Real componant of FFT'd pol0
+    :param np.ndarray(int16) pol0i:
+        Imaginary componant of FFT'd pol0
+    :param np.ndarray(int16) pol1r:
+        Real componant of FFT'd pol1
+    :param np.ndarray(int16) pol1i:
+        Imaginary componant of FFT'd pol1
+
+    :returns: Bytearray, ready for writing to sbram.
+    &quot;&quot;&quot;
+    # TODO: figure out endianness...
+    for pol in (pol0r, pol0i, pol1r, pol1i):
+        assert pol.shape==TVG_FFT_SBRAM_SHAPE, &quot;Pol shape must be compatible with sbram shape&quot;
+    out = np.array([pol0r, pol0i, pol1r, pol1i], dtype='&gt;i2').T.flatten()
+    return out.tobytes()
+
+
+def pack_tvg_fft_ramp_pol0r(fpga):
+    &quot;&quot;&quot;Write to the TVG data register&quot;&quot;&quot;
+    pol0r = np.arange(1&lt;&lt;11, dtype='&gt;i2')
+    pol0i = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    pol1r = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    pol1i = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    fpga.write(&quot;tvg1_data&quot;, pack_into_64(pol0r, pol0i, pol1r, pol1i), offset=0)
+    return
+
+def pack_tvg_fft_ramp_pol0i(fpga):
+    pol0r = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    pol0i = np.arange(1&lt;&lt;11, dtype='&gt;i2')
+    pol1r = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    pol1i = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    fpga.write(&quot;tvg1_data&quot;, pack_into_64(pol0r, pol0i, pol1r, pol1i), offset=0)
+    return
+
+def pack_tvg_fft_ramp_pol1r(fpga):
+    pol0r = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    pol0i = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    pol1r = np.arange(1&lt;&lt;11, dtype='&gt;i2')
+    pol1i = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    fpga.write(&quot;tvg1_data&quot;, pack_into_64(pol0r, pol0i, pol1r, pol1i), offset=0)
+    return
+
+def pack_tvg_fft_ramp_pol1i(fpga):
+    pol0r = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    pol0i = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    pol1r = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    pol1i = np.arange(1&lt;&lt;11, dtype='&gt;i2')
+    fpga.write(&quot;tvg1_data&quot;, pack_into_64(pol0r, pol0i, pol1r, pol1i), offset=0)
+    return
+
+def pack_tvg_fft_const_pol0r(fpga):
+    pol0r = np.ones(1&lt;&lt;11, dtype='&gt;i2')
+    pol0i = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    pol1r = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    pol1i = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    fpga.write(&quot;tvg1_data&quot;, pack_into_64(pol0r, pol0i, pol1r, pol1i), offset=0)
+    return
+
+def pack_tvg_fft_const_pattern2(fpga):
+    pol0r = np.ones(1&lt;&lt;11, dtype='&gt;i2')
+    pol0i = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    pol1r = np.ones(1&lt;&lt;11, dtype='&gt;i2') * 2
+    pol1i = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    fpga.write(&quot;tvg1_data&quot;, pack_into_64(pol0r, pol0i, pol1r, pol1i), offset=0)
+    return
+
+def pack_tvg_fft_const_pattern3(fpga):
+    pol0r = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    pol0r[np.array((400,401,403,406,410,415,421,428))] = 1
+    pol0i = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    pol1r = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    pol1i = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    fpga.write(&quot;tvg1_data&quot;, pack_into_64(pol0r, pol0i, pol1r, pol1i), offset=0)
+    return
+
+def pack_tvg_fft_pol0r(fpga,pol0r):
+    pol0i = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    pol1r = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    pol1i = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    fpga.write(&quot;tvg1_data&quot;, pack_into_64(pol0r, pol0i, pol1r, pol1i), offset=0)
+    return
+
+def pack_tvg_fft_pol0r_pol1r(fpga,pol0r,pol1r):
+    pol0i = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    pol1i = np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    fpga.write(&quot;tvg1_data&quot;, pack_into_64(pol0r, pol0i, pol1r, pol1i), offset=0)
+    return
+
+def zeros_tag(chan_idx):
+    arr=np.zeros(1&lt;&lt;11, dtype='&gt;i2')
+    arr[chan_idx] = 1&lt;&lt;14
+    arr=np.array(arr,dtype='&gt;i2')
+    return arr
+
+def negrailed_tag(chan_idx):
+    arr=np.array(np.ones(1&lt;&lt;11) * (-1&lt;&lt;14),dtype='&gt;i2')
+    arr[chan_idx] = 1&lt;&lt;14
+    arr=np.array(arr,dtype='&gt;i2')
+    return arr
+
+if __name__==&quot;__main__&quot;:
+    # tests
+    pass
+
+#pols=[np.concatenate([[1]*44,[-1],[1]*((1&lt;&lt;11)-45)]),np.concatenate([[1]*45,[-1],[1]*((1&lt;&lt;11)-46)]),np.ones(1&lt;&lt;11),np.ones(1&lt;&lt;11)];fpga.write(&quot;tvg1_data&quot;,pack_into_64(pols[0],pols[1],pols[2],pols[3]),offset=0)
+
+
+</code></pre>
+
+</details>
+
+<p><img alt="image" src="https://github.com/user-attachments/assets/04c53ba1-43c8-422d-bc29-7924458afd7a" /></p>
+<p><code>four_bit_quant_coeffs_pol0/1</code> <em>TODO</em></p>
+<p><img alt="image" src="https://github.com/user-attachments/assets/7125f44c-2cc7-484d-9558-ac815d39058f" /></p>
+<p><img alt="image" src="https://github.com/user-attachments/assets/816aa56a-8e1f-4ce0-bb5f-e6100a04847f" /></p>
+<p><code>one_bit_reorder_map1</code> <em>TODO</em></p>
+<p><img alt="image" src="https://github.com/user-attachments/assets/5f86f08d-6f42-462d-9d6c-76480f68d785" /></p>
+<p><code>four_bit_reorder_map1</code> <em>TODO</em></p>
+<p><img alt="image" src="https://github.com/user-attachments/assets/a05cf769-554a-4171-aab9-7abd4db8154f" /></p>
+<p><code>pol00</code>, <code>pol11</code>, <code>pol01r</code>, <code>pol01i</code> <em>TODO</em></p>
+<p><img alt="image" src="https://github.com/user-attachments/assets/0badcd5c-f85f-4ed7-b32b-421b398a638c" /></p>
               
             </div>
           </div><footer>

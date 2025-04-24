@@ -157,6 +157,7 @@ However, the calculus changes if we implement FFT bit-growth to avoid doing a fu
 
 ## User read/writeable registers
 We make use of all named addressable registers in this design so it's worth knowing what each of them does. (The left-pointing pentagonal tags mean *goto* and are paired with right-pointing ones of the same name.)
+
 - `gbe_en` GigaBit Ethernet interface ENable. Single bit, 0 for disable, 1 for enable.
 - `gbe_rst` GigaBit Ethernet interface ReSeT. Single bit. Resets on transition from 0 to 1. 
 - `pack_rst` PACKetizer ReSeT. Single bit to reset packetizer logic, including spectrum counter, on transition from 0 to 1.
@@ -166,63 +167,96 @@ We make use of all named addressable registers in this design so it's worth know
 - `dest_prt` Sets the DESTination PoRT.
 - `sync_cnt` (read only) does exactly nothing because I removed the logic that periodically syncs all the logic. Instead it just syncs stuff once on initialization. 
 - `acc_cnt` (read_only) ACCumulation CouNTer. Counts the number of spectra that have been accumulated.
+
 ![image](https://github.com/user-attachments/assets/dc35ab2c-af51-4d35-8757-cc842d6fa51f)
 
 Other user read/writeable registers are scattered throughout the design. 
 
 `sync_adc` SYNChronize ADC logic. Single bit pulse active on transition from 0 to 1.
+
 ![image](https://github.com/user-attachments/assets/e336dff3-952b-436f-8287-6e3adeff3513)
 
 `sync` Creates SYNChronizing pulse that aligns each set of the DSP chain. Single bit pulse, active on transition from 0 to 1.
+
 ![image](https://github.com/user-attachments/assets/32370d0a-f7d8-4995-b09a-27cb45661cee)
 
 `pfb_fft_shift` UFix12 determines the shift schedule. Each bit represents 0 for no shift, 1 for shift. Currently we have a full shift schedule. We may want to implement a bit-growth FFT so that we can have our cake (low noise floor from not shifting) and eat it too (no FFT overflows).
+
 ![image](https://github.com/user-attachments/assets/cb700aac-7c46-4e74-89d4-23321878be34)
 
 `fft_of_count` (read only) FFT OverFlow COUNTer. Every time there's an overflow event in a frame +1 is added to this UFix32 register. 
+
 ![image](https://github.com/user-attachments/assets/4000552f-d857-4f4f-9528-039c2766a375)
 
 `sel` SELects which requantization bit mode to choose from: 0 for 1bit, 1 for 4bits. 
+
 ![image](https://github.com/user-attachments/assets/db427b50-23b6-4954-b8ca-67176bf47ce7)
 
 `tvg1_enable` Enables the the TVG right after the FFT stage. 0 to pass actual data, 1 to pass values read sequentially from the BRAM labelled `data`.  
+
 ![image](https://github.com/user-attachments/assets/965644f1-5e7f-4e35-bacd-4cbea44bc282)
 
-`tvg16bit_enable` Enables the the TVG right after the 4bit requantization stage. 0 to pass actual data, 1 to pass values read sequentially from the BRAM labelled `data`.  
+`tvg16bit_enable` enables the the TVG right after the 4bit requantization stage. Write 0 to pass actual data, 1 to pass values read sequentially from the BRAM labelled `data`. 
+
+
+
 ![image](https://github.com/user-attachments/assets/92f41e80-d411-49e6-a489-9bc1cd704244)
 
 `four_bit_quant_clip_count` *TODO*
+
 ![image](https://github.com/user-attachments/assets/61d9f33b-769a-4a5d-a905-d28dbd13ec01)
 
 
 `spectra_per_packet` *TODO*
+
 ![image](https://github.com/user-attachments/assets/ce1b0a74-604e-4658-a7f9-52226a5e6038)
 
 `bytes_per_spectrum` *TODO*
+
 ![image](https://github.com/user-attachments/assets/8a3a2dc9-285b-496d-9a9a-5f2839976327)
 
 `tx_of_cnt` *TODO*
+
 ![image](https://github.com/user-attachments/assets/63ea5bae-0e51-4440-b4ee-a6fb8e3c42be)
 
 
 ## User BRAM interfaces
+
 `tvg1_data` *TODO*
+
 ![image](https://github.com/user-attachments/assets/f1de49f6-9061-4ba1-b7b4-c27abf0b19de)
 
 `tvg16bit_data` *TODO*
+
+Examples of this TVG's use can be found [here](https://github.com/ALBATROS-Experiment/sparrow-albatros/blob/main/software/tvg_4bitq.py). 
+
+<details>
+<summary>View example use</summary>
+
+```python
+--8<-- "software/tvg_4bitq.py"
+```
+</details>
+
+
 ![image](https://github.com/user-attachments/assets/04c53ba1-43c8-422d-bc29-7924458afd7a)
 
 `four_bit_quant_coeffs_pol0/1` *TODO*
+
 ![image](https://github.com/user-attachments/assets/7125f44c-2cc7-484d-9558-ac815d39058f)
+
 ![image](https://github.com/user-attachments/assets/816aa56a-8e1f-4ce0-bb5f-e6100a04847f)
 
 `one_bit_reorder_map1` *TODO*
+
 ![image](https://github.com/user-attachments/assets/5f86f08d-6f42-462d-9d6c-76480f68d785)
 
 `four_bit_reorder_map1` *TODO*
+
 ![image](https://github.com/user-attachments/assets/a05cf769-554a-4171-aab9-7abd4db8154f)
 
 `pol00`, `pol11`, `pol01r`, `pol01i` *TODO*
+
 ![image](https://github.com/user-attachments/assets/0badcd5c-f85f-4ed7-b32b-421b398a638c)
 
 
