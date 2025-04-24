@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>Modify and Simulate - Sparrow Albatros</title>
+    <title>Networking - Sparrow Albatros</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -14,8 +14,8 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Modify and Simulate";
-        var mkdocs_page_input_path = "gateware-modify-simulate.md";
+        var mkdocs_page_name = "Networking";
+        var mkdocs_page_input_path = "networking.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -48,7 +48,7 @@
                 </li>
               </ul>
               <p class="caption"><span class="caption-text">Embedded Software</span></p>
-              <ul>
+              <ul class="current">
                   <li class="toctree-l1"><a class="reference internal" href="../data-collection/">Run the DAQ, collect data</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../tuning-the-gateware/">Tuning the gateware</a>
@@ -59,24 +59,20 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../dump-spectra/">Dumping correlated spectra</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../networking/">Networking</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Networking</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#network-configuration-on-the-arm">Network Configuration on the ARM</a>
+    </li>
+    </ul>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Gateware</span></p>
-              <ul class="current">
+              <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../installing-the-toolchain/">Installing the Toolchain</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../gateware-design/">Design Overview</a>
                   </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Modify and Simulate</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#modify-the-design">Modify the design</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#simulate-the-design">Simulate the design</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#synthesize-and-implement-the-design">Synthesize and Implement the design</a>
-    </li>
-    </ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../gateware-modify-simulate/">Modify and Simulate</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../gateware-compile-synthesize-implement/">Compile, Synthesize, Implement</a>
                   </li>
@@ -107,8 +103,8 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
-          <li class="breadcrumb-item">Gateware</li>
-      <li class="breadcrumb-item active">Modify and Simulate</li>
+          <li class="breadcrumb-item">Embedded Software</li>
+      <li class="breadcrumb-item active">Networking</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -117,96 +113,26 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="modify-and-simulate">Modify and Simulate</h1>
-<p>Once you've got the <a href="../installing-the-toolchain/">toolchain</a> up and running on a beefy computer, you'll be ready to modify and simulate the Sparrow Albatros spectrometer design.</p>
-<h2 id="modify-the-design">Modify the design</h2>
-<p>The Sparrow Albatros design is built using Simulink and the CASPER libraries. To modify the design:</p>
-<ol>
-<li>Launch MATLAB and navigate to your project directory</li>
-<li>Open the Simulink model file <code>sparrow_albatros_spec.slx</code></li>
-<li>Make your desired changes to the design</li>
-<li>Add or modify blocks from the CASPER library</li>
-<li>Adjust parameters on existing blocks</li>
-<li>Create new subsystems for complex functionality</li>
-<li>Connect signals between blocks with appropriate data types</li>
-</ol>
-<p>When modifying the design, keep these tips in mind:</p>
+                <h1 id="networking">Networking</h1>
+<p>SFP0 (FPGA) &lt;--&gt; Eth0 (ARM)
+Eth0 (ARM) &lt;--&gt; External connection (laptop)
+Eth0 (ARM) &lt;--&gt; External connection (Starlink)</p>
+<p>Our Swtich handles this. </p>
+<h2 id="network-configuration-on-the-arm">Network Configuration on the ARM</h2>
 <ul>
-<li>Always maintain synchronization between signal paths</li>
-<li>Check data bit widths at key points in your design</li>
-<li>Consider timing implications when adding complex logic</li>
-<li>Use the CASPER yellow blocks for hardware interfaces</li>
-<li>Add test points at critical junctions to aid in simulation</li>
+<li>hardware constraints (it only has an Eth0 port 1GBE, no wifi NIC+antenna, no second Eth driver)</li>
+<li>known issues <ul>
+<li>if you're running an -X session without compression expect dropped packets</li>
 </ul>
-<h2 id="simulate-the-design">Simulate the design</h2>
-<p>Simulation is a crucial step before synthesis and implementation. It allows you to verify the logical correctness of your design without the time-consuming FPGA build process.</p>
-<p>To simulate your design:</p>
-<ol>
-<li>Configure simulation parameters:</li>
-<li>Click on the "Simulation" menu in Simulink</li>
-<li>Select "Model Configuration Parameters"</li>
-<li>
-<p>Set appropriate stop time and solver options</p>
 </li>
-<li>
-<p>Add test signals:</p>
-</li>
-<li>Use MATLAB Function blocks or From Workspace blocks to generate test vectors</li>
-<li>Configure step sources or sine wave generators for predictable input patterns</li>
-<li>
-<p>Consider using recorded ADC data for realistic testing</p>
-</li>
-<li>
-<p>Add monitoring tools:</p>
-</li>
-<li>Place Scope blocks to visualize signals during simulation</li>
-<li>Use To Workspace blocks to save simulation results for later analysis</li>
-<li>
-<p>Add Display blocks to show numerical values at key points</p>
-</li>
-<li>
-<p>Run the simulation:</p>
-</li>
-<li>Click the "Run" button in the Simulink toolbar</li>
-<li>Monitor signals in real-time on Scope blocks</li>
-<li>
-<p>Adjust simulation speed as needed</p>
-</li>
-<li>
-<p>Analyze results:</p>
-</li>
-<li>Verify that signals behave as expected at each processing stage</li>
-<li>Check for timing issues, overflows, or unexpected values</li>
-<li>Use MATLAB scripts to post-process simulation outputs</li>
-</ol>
-<p>For example, to simulate the FFT behavior:
-- Create test signals with known frequency components
-- Run the simulation through the PFB and FFT stages
-- Visualize the output to confirm frequency bin mapping
-- Verify that the shift schedule prevents overflows</p>
-<h2 id="synthesize-and-implement-the-design">Synthesize and Implement the design</h2>
-<p>After successful simulation, proceed to build the FPGA design:</p>
-<ol>
-<li>Run the CASPER toolflow script with appropriate parameters</li>
-<li>Monitor the compilation process for warnings and errors</li>
-<li>Review resource utilization reports</li>
-</ol>
-<p>During these stages, the design goes through three transformations:
-- Compilation (Simulink model → HDL)
-- Synthesis (HDL → logic gates)
-- Implementation (logic gates → hardware configuration)</p>
-<p><strong>Open up the synthesized design in Vivado and check timing</strong></p>
-<p>After synthesis, examine the timing reports in Vivado to ensure all timing constraints are met. Pay special attention to:
-- Clock domain crossings
-- Critical paths
-- Setup and hold time violations</p>
-<p>For more details on these stages, see <a href="../gateware-compile-synthesize-implement/">Gateware Compile, Synthesize, and Implement</a>.</p>
+<li>ifconfig</li>
+</ul>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../gateware-design/" class="btn btn-neutral float-left" title="Design Overview"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../gateware-compile-synthesize-implement/" class="btn btn-neutral float-right" title="Compile, Synthesize, Implement">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../dump-spectra/" class="btn btn-neutral float-left" title="Dumping correlated spectra"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../installing-the-toolchain/" class="btn btn-neutral float-right" title="Installing the Toolchain">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -229,10 +155,10 @@
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../gateware-design/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../dump-spectra/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../gateware-compile-synthesize-implement/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../installing-the-toolchain/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

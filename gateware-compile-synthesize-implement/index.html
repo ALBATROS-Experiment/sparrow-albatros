@@ -55,6 +55,12 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../digital-gain-coefficients-4bit/">Optimal Digital Gain Coefficients (4-bit)</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../dump-baseband/">Dumping baseband</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../dump-spectra/">Dumping correlated spectra</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../networking/">Networking</a>
+                  </li>
               </ul>
               <p class="caption"><span class="caption-text">Gateware</span></p>
               <ul class="current">
@@ -65,11 +71,26 @@
                   <li class="toctree-l1"><a class="reference internal" href="../gateware-modify-simulate/">Modify and Simulate</a>
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="#">Compile, Synthesize, Implement</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#compilation">Compilation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#synthesis">Synthesis</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#implementation">Implementation</a>
+    </li>
+    </ul>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Disk Images</span></p>
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../installing-sparrow-albatros/">Installing Sparrow Albatros</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Data Specification</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../data-baseband/">Baseband</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../data-correlated-spectra/">Correlated Spectra</a>
                   </li>
               </ul>
       </div>
@@ -96,7 +117,19 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                
+                <h1 id="gateware-compile-synthesize-and-implement">Gateware Compile, Synthesize, and Implement</h1>
+<h2 id="compilation">Compilation</h2>
+<p>Compilation is the process of converting Simulink block diagrams into an intermediate representation that can be processed by the FPGA toolchain. In the CASPER framework, this involves translating the graphical Simulink model into VHDL or Verilog code that represents the digital logic design.</p>
+<p>During compilation, the CASPER libraries interpret your Simulink blocks and connections, translating them into corresponding HDL constructs. Block parameters, data types, and timing constraints from your model are preserved in this translation. The compiler also generates appropriate interfaces between your design and the target FPGA's hardware resources.</p>
+<p>The compilation process performs crucial checks on your design, including data type validation, clock domain analysis, and resource estimation. Once complete, compilation produces HDL files that describe your design's functionality, which serve as input to the synthesis tools.</p>
+<h2 id="synthesis">Synthesis</h2>
+<p>Synthesis transforms the human-readable HDL code generated during compilation into a network of logic gates. This stage converts the abstract description of your design's behavior into a concrete implementation using the basic building blocks available in digital hardware.</p>
+<p>During synthesis, the tools analyze the HDL code to identify functional elements like arithmetic operations, state machines, and memory accesses. These elements are then mapped to primitive logic gates (AND, OR, NOT, etc.) and more complex structures like look-up tables (LUTs) and flip-flops. The synthesis tools also perform optimizations to reduce resource usage and improve timing performance.</p>
+<p>The output of synthesis is a netlist  a detailed description of the logic gates and their interconnections. This representation is still somewhat abstract, as it doesn't yet specify exactly where these gates will be placed on the physical FPGA chip.</p>
+<h2 id="implementation">Implementation</h2>
+<p>Implementation is the final stage where the synthesized design is physically mapped onto the target FPGA. This process transforms the logical netlist into a specific configuration of the FPGA's hardware resources.</p>
+<p>The implementation phase consists of several steps including placement (determining where on the chip each logic element will reside), routing (establishing the physical connections between these elements), and timing analysis (verifying that signals can propagate through the design within clock cycle constraints). The tools make complex decisions to optimize for factors like signal propagation delay, power consumption, and resource utilization.</p>
+<p>Once implementation is complete, a bitstream file is generated that contains the configuration data for programming the FPGA. This binary file specifies the state of each programmable element in the FPGA, effectively encoding your Simulink design into a format that can directly configure the hardware. In the CASPER framework, this final product is typically an .fpg file that includes both the bitstream and metadata about your design.</p>
               
             </div>
           </div><footer>

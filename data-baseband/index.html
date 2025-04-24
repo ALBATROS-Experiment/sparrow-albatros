@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Baseband - Sparrow Albatros</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="../stylesheets/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Baseband";
+        var mkdocs_page_input_path = "data-baseband.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/c.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Sparrow Albatros
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Embedded Software</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../data-collection/">Run the DAQ, collect data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tuning-the-gateware/">Tuning the gateware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../digital-gain-coefficients-4bit/">Optimal Digital Gain Coefficients (4-bit)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../dump-baseband/">Dumping baseband</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../dump-spectra/">Dumping correlated spectra</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../networking/">Networking</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Gateware</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../installing-the-toolchain/">Installing the Toolchain</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../gateware-design/">Design Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../gateware-modify-simulate/">Modify and Simulate</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../gateware-compile-synthesize-implement/">Compile, Synthesize, Implement</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Disk Images</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../installing-sparrow-albatros/">Installing Sparrow Albatros</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Data Specification</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Baseband</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#introduction-to-baseband-data">Introduction to Baseband Data</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#data-collection-process">Data Collection Process</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#baseband-data-format">Baseband Data Format</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#packetization-and-limitations">Packetization and Limitations</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#udp-packet-format">UDP Packet Format</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#raw-file-header-format">Raw File Header Format</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#capturing-baseband-data">Capturing Baseband Data</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#configuration">Configuration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#implementation-details">Implementation Details</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#reading-and-analyzing-baseband-data">Reading and Analyzing Baseband Data</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#c-code-implementation">C Code Implementation</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../data-correlated-spectra/">Correlated Spectra</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Sparrow Albatros</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Data Specification</li>
+      <li class="breadcrumb-item active">Baseband</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="baseband">Baseband</h1>
+<ul>
+<li>What is baseband?</li>
+<li>Specify the header format?</li>
+<li>Refer to how it's packetized (in the gateware design overview) and talk about the limitations this imposes on 1-bit the data. </li>
+<li>Also data is read in multiples of four bytes over spi interface which limits flexibility in one-bit channels selectable. </li>
+<li>How to read and plot the data, pointers to Albatros analysis repository. </li>
+<li>Point out/document specific c-code that writes out the business. </li>
+</ul>
+<h2 id="introduction-to-baseband-data">Introduction to Baseband Data</h2>
+<p>Baseband data refers to the raw, digitized signal output from the ADCs after it has been processed through the PFB (Polyphase Filter Bank) and FFT (Fast Fourier Transform) stages, but before any correlation is performed. This data represents the complex frequency-domain representation of the original input signals from both polarizations.</p>
+<p>In the Sparrow Albatros system, baseband data can be requantized to either 1-bit or 4-bit resolution before being packetized and transmitted over the network. This allows for flexible bandwidth usage depending on the scientific requirements of the observation.</p>
+<h2 id="data-collection-process">Data Collection Process</h2>
+<p>The baseband data flows through the following processing chain:</p>
+<ol>
+<li>Analog signals are digitized by the ADCs at 250 MSPS</li>
+<li>The digital samples are processed through the PFB/FFT pipeline</li>
+<li>Data is requantized to either 1-bit or 4-bit resolution</li>
+<li>Selected frequency channels are reordered and packetized</li>
+<li>Packets are transmitted over UDP to a receiving computer</li>
+<li>The <code>dump_baseband</code> utility captures these packets and writes them to disk</li>
+</ol>
+<p>For details on the baseband data collection process see the <a href="../dump-baseband/">Embedded Software/Dumping Baseband</a> page.</p>
+<h2 id="baseband-data-format">Baseband Data Format</h2>
+<h3 id="packetization-and-limitations">Packetization and Limitations</h3>
+<p>As described in the <a href="../gateware-design/#packetiser">gateware design overview</a>, the baseband data is packetized in the FPGA before transmission. The packetization process imposes some limitations on the data, particularly for 1-bit mode:</p>
+<ul>
+<li>Data is bussified onto an 8-bit bus before packetization</li>
+<li>For 4-bit data (4 bits real + 4 bits imaginary for each polarization), this fundamentally limits us to 1024 of 2048 channels</li>
+<li>For 1-bit data, channels must be selected in multiples of four due to the SPI interface reading only in multiples of four bytes. Channels come in pairs starting with an even indexed channels because the gateware's 1-bit-data bussifier employs a barrel-switcher that pairs consecutive channels, further limiting the flexibility in channel selection.</li>
+</ul>
+<h3 id="udp-packet-format">UDP Packet Format</h3>
+<p>Each UDP packet contains:
+- A 4-byte spectrum number (specno) header
+- Multiple spectra of baseband data (the number of spectra per packet is configurable)</p>
+<p>The number of spectra per packet is calculated to optimize data transfer, with a maximum of 30 spectra per packet. This is determined by the <code>get_nspec</code> function in the <code>dump_baseband</code> utility:</p>
+<pre><code class="language-c">uint64_t get_nspec(uint64_t bytes_per_spec, uint64_t max_nbyte) {
+    uint64_t nspec = max_nbyte / bytes_per_spec; 
+    if (nspec &gt; 30) {
+        nspec = 30;
+    } else if (nspec &lt; 1) {
+        log_message(&quot;WARNING: nspec&lt;1, packets may be fragmented.\n&quot;);
+        nspec = 1;
+    }
+    return nspec;
+}
+</code></pre>
+<h3 id="raw-file-header-format">Raw File Header Format</h3>
+<p>When baseband data is captured to disk, a comprehensive header is written to the start of each file. The header includes:</p>
+<ol>
+<li>Header size information</li>
+<li>Version information</li>
+<li>Packet and spectral metadata</li>
+<li>GPS timing and location data (if available)</li>
+<li>Channel indices</li>
+<li>Digital gain coefficients for both polarizations</li>
+</ol>
+<p>The header is written in big-endian format to ensure cross-platform compatibility:</p>
+<pre><code class="language-c">uint64_t file_header0[FH0SIZE] = {
+    to_big_endian(header_bytes),     // The number of bytes in the header
+    to_big_endian(escape_seq_zero),  // Escape sequence to distinguish from old format
+    to_big_endian(version_major),    // Major version number
+    to_big_endian(version_minor),    // Minor version number
+    to_big_endian(bytes_per_packet), // Number of bytes in each UDP packet payload
+    to_big_endian(lenchans),         // Number of frequency channels
+    to_big_endian(spec_per_packet),  // Number of spectra per packet
+    to_big_endian(bits),             // Quantization bits (1 or 4)
+    to_big_endian(adc_clk),          // ADC sampling rate in MHz
+    to_big_endian(fft_framelen),     // FFT frame size
+    to_big_endian(station_id),       // Station ID
+    to_big_endian(have_gps),         // Flag indicating if GPS data is available
+    to_big_endian(time_s),           // Unix timestamp (seconds)
+    to_big_endian(time_ns),          // Nanosecond precision
+    to_big_endian_double(lattitude), // Latitude in degrees
+    to_big_endian_double(longitude), // Longitude in degrees
+    to_big_endian_double(elevation), // Altitude in meters
+};
+</code></pre>
+<p>Following this initial header section, the file contains:
+- Channel indices for each selected channel
+- Digital gain coefficients for polarization 0
+- Digital gain coefficients for polarization 1
+- The actual baseband data packets</p>
+<h2 id="capturing-baseband-data">Capturing Baseband Data</h2>
+<p>The Sparrow Albatros system provides a dedicated C utility, <code>dump_baseband</code>, to capture the UDP packets containing baseband data and write them to disk. This utility is optimized for high-throughput data capture with minimal packet loss.</p>
+<h3 id="configuration">Configuration</h3>
+<p>The <code>dump_baseband</code> utility reads its configuration from a standard INI file (typically <code>config.ini</code>). Important configuration parameters include:</p>
+<pre><code class="language-ini">[baseband]
+channels=190:194 220:222  # Format: range1 range2 ...
+file_size=1               # Size in GB
+bits=4                    # 1 for 1-bit mode, 4 for 4-bit mode
+version_major=1           # Header version
+version_minor=0           # Header version
+
+[paths]
+dump_baseband_output_directory=/path/to/output
+coeffs_pol0_binary_path=/path/to/coeffs0
+coeffs_pol1_binary_path=/path/to/coeffs1
+
+[networking]
+max_bytes_per_packet=8192  # Maximum UDP payload size
+</code></pre>
+<h3 id="implementation-details">Implementation Details</h3>
+<p>The utility uses the libpcap library to capture network packets matching specific filter criteria:</p>
+<pre><code class="language-c">char filter_exp[] = &quot;udp and dst port 7417 and dst host 10.10.11.99 and src host 192.168.41.10&quot;;
+</code></pre>
+<p>Files are organized into directories named by timestamp slice to facilitate data management. Each raw file contains:
+1. The header as described above
+2. A sequence of UDP packet payloads containing the baseband data</p>
+<p>The utility monitors for packet loss both within individual files and between consecutive files, logging statistics to help identify data quality issues.</p>
+<h2 id="reading-and-analyzing-baseband-data">Reading and Analyzing Baseband Data</h2>
+<p>To read and analyze the baseband data, refer to the <a href="https://github.com/ALBATROS-Experiment/albatros_analysis">Albatros Analysis</a> repository, which provides Python utilities for:</p>
+<ol>
+<li>Reading the raw file format</li>
+<li>Extracting and interpreting the header information</li>
+<li>Processing the baseband data</li>
+<li>Plotting and visualizing the data</li>
+</ol>
+<p>The header information can be loaded and parsed to understand the data parameters, and the actual data can be processed for scientific analysis.</p>
+<h2 id="c-code-implementation">C Code Implementation</h2>
+<p>The implementation of the <code>dump_baseband</code> utility is found in <code>software/dump_baseband.c</code>. Key functions include:</p>
+<ul>
+<li><code>write_header</code>: Writes the comprehensive file header</li>
+<li><code>get_config_from_ini</code>: Parses the INI configuration file</li>
+<li><code>get_packets_per_file</code>: Calculates how many packets to write per file</li>
+<li><code>parse_chans</code>: Parses channel specifications from the configuration</li>
+<li><code>set_coeffs_from_serialized_binary_files</code>: Loads digital gain coefficients</li>
+</ul>
+<p>The main capture loop in the utility captures packets, extracts the payload, and writes them sequentially to disk, organizing files by timestamp.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../installing-sparrow-albatros/" class="btn btn-neutral float-left" title="Installing Sparrow Albatros"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../data-correlated-spectra/" class="btn btn-neutral float-right" title="Correlated Spectra">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../installing-sparrow-albatros/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../data-correlated-spectra/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../wavedrom-init.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -63,6 +63,12 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="digital-gain-coefficients-4bit/">Optimal Digital Gain Coefficients (4-bit)</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="dump-baseband/">Dumping baseband</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="dump-spectra/">Dumping correlated spectra</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="networking/">Networking</a>
+                  </li>
               </ul>
               <p class="caption"><span class="caption-text">Gateware</span></p>
               <ul>
@@ -78,6 +84,13 @@
               <p class="caption"><span class="caption-text">Disk Images</span></p>
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="installing-sparrow-albatros/">Installing Sparrow Albatros</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Data Specification</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="data-baseband/">Baseband</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="data-correlated-spectra/">Correlated Spectra</a>
                   </li>
               </ul>
       </div>
@@ -104,11 +117,13 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="sparrow-albatros">Sparrow Albatros</h1>
-<p>This repository serves three purpouses. The first is to house and version control <strong>embedded software</strong> that runs on the Sparrow's ARM's processor. The second is to house and version control <strong>gateware</strong> that runs on the Sparrow's FPGA. The third is to store and checkpoint <strong>disk-images</strong> of the OS that run the data acquisition software. The embedded software mates with the gateware, so it's conveniant to track them in the same repository. We use git-lfs to track the OS disk-images and exclude them from downloading by default. By tracking disk images here we we can recreate a bit-accurate release of sparrow-albatros without relying on anything outside of this repository. </p>
+<p>This repository serves three purpouses. The first is to house and version control <strong>embedded software</strong> that runs on the Sparrow's ARM's processor. The second is to house and version control <strong>gateware</strong> that runs on the Sparrow's FPGA. The third is to store and checkpoint <strong>disk-images</strong> of the OS that run the data acquisition software. The embedded software mates with the gateware, so it's conveniant to track them in the same repository. </p>
 <h2 id="embedded-software">Embedded software</h2>
-<p>We're running Ubunto on the on the Zynq's ARM core. The software that runs on this processor controls. This software can be found in the /software directory. Everything in this repository that runs on the ARM core comes from this directory. </p>
+<p>We're running Ubuntu18 on the on the Zynq's ARM core. The software that runs on this processor loads and configures gateware to the FPGA, controls peripheral devices (such as mounting external storage), and runs data acquisition jobs (such as routing and re-packaging UDP packets' payloads (binary data) to files to external storage). This software can be found in the /software directory. Everything in this repository that runs on the ARM core comes from this directory. </p>
 <h2 id="gateware">Gateware</h2>
+<p>The digital signal processing logic, or 'gateware', runs on the Sparrow's Zync xc7z-series FPGA. The gateware implements all our real-time digital signal processing. Zync xc7z-series chips comprise a dual core ARM Cortex-A9 processor, programable FPGA fabric, and two configuratble ADCs.</p>
 <h2 id="disk-images">Disk Images</h2>
+<p>Disk images of the Ubuntu18 operating system and file-system running on the ARM core are tracked in this repository. We use git-lfs and exclude them from downloading by default as they are each about 2GB large. By tracking disk images here we can recreate a bit-accurate release of sparrow-albatros without <em>relying on anything outside of this repository</em>--a version controler's wet-dream. </p>
               
             </div>
           </div><footer>
@@ -159,5 +174,5 @@
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2025-04-24 04:02:54.965498+00:00
+Build Date UTC : 2025-04-24 19:53:31.881917+00:00
 -->
