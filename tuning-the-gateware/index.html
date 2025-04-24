@@ -56,20 +56,30 @@
     <li class="toctree-l2"><a class="reference internal" href="#reading-and-writing-to-programmable-registers">Reading and Writing to Programmable Registers</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#sparrow_albatros.AlbatrosDigitizer.setup">setup</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#sparrow_albatros.AlbatrosDigitizer.setup">setup</a>
+        </ul>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#set-channel-order">Set channel order</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#sparrow_albatros.AlbatrosDigitizer.set_channel_order">set_channel_order</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#sparrow_albatros.AlbatrosDigitizer.set_channel_order">set_channel_order</a>
+        </ul>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#tune">Tune</a>
+    <li class="toctree-l2"><a class="reference internal" href="#tuning-registers">Tuning registers</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#sparrow_albatros.AlbatrosDigitizer.tune">tune</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#sparrow_albatros.AlbatrosDigitizer.tune">tune</a>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#tuning-the-4-bit-digital-gain-coefficients-special-case">Tuning the 4-bit digital gain coefficients (special case)</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#the-communication-stack">The communication stack</a>
     </li>
     </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../digital-gain-coefficients-4bit/">Optimal Digital Gain Coefficients (4-bit)</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Gateware</span></p>
@@ -114,7 +124,7 @@
               
                 <h1 id="tuning-the-gateware-from-python">Tuning the Gateware from Python</h1>
 <p>The <a href="../gateware-design/">Design Overview</a> section documents how the gateware is designed diagramatically in Matlab at a high level of abstraction. If you are unfamiliar with gateware design or are finding this section confusing you may want to read that section before this one.</p>
-<h3 id="reading-and-writing-to-programmable-registers">Reading and Writing to Programmable Registers</h3>
+<h2 id="reading-and-writing-to-programmable-registers">Reading and Writing to Programmable Registers</h2>
 <p>In Python the CasperFpga class allows you to interface with named FPGA registers. The gateware needs to be tuned and configured according to the user's needs, such as which channels to pick and which what bit mode to select. This configuration happens in five steps. </p>
 <ul>
 <li>Setup. TODO</li>
@@ -123,16 +133,17 @@
 <li>Tune. TODO</li>
 <li>Optionally update the 4 bit coefficients based on OBC data. TODO</li>
 </ul>
-<h3 id="setup">Setup</h3>
+<h2 id="setup">Setup</h2>
+<p>TODO: write this section... </p>
 
 
 <div class="doc doc-object doc-function">
 
 
-<h3 id="sparrow_albatros.AlbatrosDigitizer.setup" class="doc doc-heading">
+<h5 id="sparrow_albatros.AlbatrosDigitizer.setup" class="doc doc-heading">
             <code class="highlight language-python"><span class="n">sparrow_albatros</span><span class="o">.</span><span class="n">AlbatrosDigitizer</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span></code>
 
-</h3>
+</h5>
 
 
     <div class="doc doc-contents first">
@@ -157,16 +168,17 @@
             </details>
     </div>
 
-</div><h3 id="set-channel-order">Set channel order</h3>
+</div><h2 id="set-channel-order">Set channel order</h2>
+<p>TODO: write this section... </p>
 
 
 <div class="doc doc-object doc-function">
 
 
-<h3 id="sparrow_albatros.AlbatrosDigitizer.set_channel_order" class="doc doc-heading">
+<h5 id="sparrow_albatros.AlbatrosDigitizer.set_channel_order" class="doc doc-heading">
             <code class="highlight language-python"><span class="n">sparrow_albatros</span><span class="o">.</span><span class="n">AlbatrosDigitizer</span><span class="o">.</span><span class="n">set_channel_order</span><span class="p">(</span><span class="n">channels</span><span class="p">,</span> <span class="n">bits</span><span class="p">)</span></code>
 
-</h3>
+</h5>
 
 
     <div class="doc doc-contents first">
@@ -193,16 +205,17 @@
             </details>
     </div>
 
-</div><h3 id="tune">Tune</h3>
+</div><h2 id="tuning-registers">Tuning registers</h2>
+<p>TODO: write this section... </p>
 
 
 <div class="doc doc-object doc-function">
 
 
-<h3 id="sparrow_albatros.AlbatrosDigitizer.tune" class="doc doc-heading">
+<h5 id="sparrow_albatros.AlbatrosDigitizer.tune" class="doc doc-heading">
             <code class="highlight language-python"><span class="n">sparrow_albatros</span><span class="o">.</span><span class="n">AlbatrosDigitizer</span><span class="o">.</span><span class="n">tune</span><span class="p">(</span><span class="n">ref_clock</span><span class="p">,</span> <span class="n">fftshift</span><span class="p">,</span> <span class="n">acc_len</span><span class="p">,</span> <span class="n">dest_ip</span><span class="p">,</span> <span class="n">dest_prt</span><span class="p">,</span> <span class="n">spectra_per_packet</span><span class="p">,</span> <span class="n">bytes_per_spectrum</span><span class="p">,</span> <span class="n">bits</span><span class="p">,</span> <span class="n">dest_mac</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></code>
 
-</h3>
+</h5>
 
 
     <div class="doc doc-contents first">
@@ -484,7 +497,14 @@ address. </p>
             </details>
     </div>
 
-</div><h3 id="the-communication-stack">The communication stack</h3>
+</div><h2 id="tuning-the-4-bit-digital-gain-coefficients-special-case">Tuning the 4-bit digital gain coefficients (special case)</h2>
+<p>TODO: write this section... here's an outline: 
+- To avoid non-converging, iterative hell of capturing 4 bit data and increasing or decreasing the digital gain coefficients on each channel (that may take forever to converge in the intermittent RFI case), we one-shot the 4-bit gain coefficients by getting a power reading from the on-board-correlator. 
+- Tune gateware so that it's collecting data as you'd like it to
+- Wait for the on board correlator's accumulator to fill up
+- Read the auto-correlations power in each channel to estimate the optimal digital-gain coefficient needed
+- Write the set the 4-bit digital gain coefficients. </p>
+<h2 id="the-communication-stack">The communication stack</h2>
 <p>You may be wondering how Python is able to read from and write to FPGA registers. </p>
 <p><TODO: explain how the gateware is configured with user read/write-able registers. Start with a section explaining the communication stack, how the python code talks to the tcpborphserver over http, how this server is configured as a service controlled by systemctl, the tcp borph server talks to (which chip?) over SPI, how the SPI commands talk to the FPGA, how the CASPER framework implements a piece of SPI logic that recieves commands and writes/reads data to/from programable registers. Finish this off with a paragraph about how the CASPER framework implements .fpg files after binary implementation, also reference the compile, synthesis, implementation.></p>
               
@@ -492,7 +512,7 @@ address. </p>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
         <a href="../data-collection/" class="btn btn-neutral float-left" title="Run the DAQ, collect data"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../installing-the-toolchain/" class="btn btn-neutral float-right" title="Installing the Toolchain">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../digital-gain-coefficients-4bit/" class="btn btn-neutral float-right" title="Optimal Digital Gain Coefficients (4-bit)">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -518,7 +538,7 @@ address. </p>
       <span><a href="../data-collection/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../installing-the-toolchain/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../digital-gain-coefficients-4bit/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
@@ -527,6 +547,7 @@ address. </p>
     <script src="../js/theme_extra.js"></script>
     <script src="../js/theme.js"></script>
       <script src="../wavedrom-init.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       <script src="../search/main.js"></script>
     <script>
         jQuery(function () {
