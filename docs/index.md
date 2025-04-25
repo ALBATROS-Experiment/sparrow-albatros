@@ -13,6 +13,6 @@ The digital signal processing logic, or 'gateware', runs on the Sparrow's Zync x
 
 ## Disk Images
 
-Disk images of the Ubuntu18 operating system and file-system running on the ARM core are tracked in this repository. We use git-lfs and exclude them from downloading by default as they are each about 2GB large. By tracking disk images here we can recreate a bit-accurate release of sparrow-albatros without *relying on anything outside of this repository*--a version controler's wet-dream. 
+Disk images of the Ubuntu18 operating system and file-system running on the ARM core are tracked in this repository. We use git-lfs and exclude them from downloading by default as they are each about 2GB large. By tracking disk images here we can recreate a bit-accurate release of sparrow-albatros without *relying on anything outside of this repository*.
 
 
