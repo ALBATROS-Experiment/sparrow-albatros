@@ -94,6 +94,8 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../gateware-design/">Design Overview</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fft-note/">Note on FFT Implementation</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../gateware-modify-simulate/">Modify and Simulate</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../gateware-compile-synthesize-implement/">Compile, Synthesize, Implement</a>
@@ -136,7 +138,16 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="tuning-the-gateware-from-python">Tuning the Gateware from Python</h1>
-<p>The <a href="../gateware-design/">Design Overview</a> section documents how the gateware is designed diagramatically in Matlab at a high level of abstraction. If you are unfamiliar with gateware design or are finding this section confusing you may want to read that section before this one.</p>
+<p>This section is about how to configure the gateware once the FPGA has been programmed. This means writing to a sequence of registers and BRAMs to:</p>
+<ul>
+<li>Synchronize the logic</li>
+<li>Select requantization depth (4-bit / 1-bit)</li>
+<li>Set FFT parameters</li>
+<li>Set the cross correlation parameters</li>
+<li>Select frequency channels</li>
+<li>Autotune the digital gain coefficients (4-bit mode only) </li>
+</ul>
+<p>The <a href="../gateware-design/">Design Overview</a> section documents how the gateware is designed in Simulink. If you are unfamiliar with gateware design or are finding this section confusing you may want to read that section before this one.</p>
 <h2 id="reading-and-writing-to-programmable-registers">Reading and Writing to Programmable Registers</h2>
 <p>In Python the CasperFpga class allows you to interface with named FPGA registers. The gateware needs to be tuned and configured according to the user's needs, such as which channels to pick and which what bit mode to select. This configuration happens in five steps. </p>
 <ul>

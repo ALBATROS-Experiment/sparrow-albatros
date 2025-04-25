@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>Correlated Spectra - Sparrow Albatros</title>
+    <title>Note on FFT Implementation - Sparrow Albatros</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -14,8 +14,8 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Correlated Spectra";
-        var mkdocs_page_input_path = "data-correlated-spectra.md";
+        var mkdocs_page_name = "Note on FFT Implementation";
+        var mkdocs_page_input_path = "fft-note.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -63,12 +63,28 @@
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Gateware</span></p>
-              <ul>
+              <ul class="current">
                   <li class="toctree-l1"><a class="reference internal" href="../installing-the-toolchain/">Installing the Toolchain</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../gateware-design/">Design Overview</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../fft-note/">Note on FFT Implementation</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Note on FFT Implementation</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#what-is-a-fast-fourier-transform-fft">What is a Fast Fourier Transform (FFT)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#radix-2-decomposition">Radix-2 Decomposition</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pipelining">Pipelining</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#biplexing">Biplexing</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#fft-shift-schedule">FFT Shift Schedule</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#bit-growth">Bit Growth</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#symmetric-group-buffering">Symmetric Group Buffering</a>
+    </li>
+    </ul>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../gateware-modify-simulate/">Modify and Simulate</a>
                   </li>
@@ -81,12 +97,10 @@
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Data Specification</span></p>
-              <ul class="current">
+              <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../data-baseband/">Baseband</a>
                   </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Correlated Spectra</a>
-    <ul class="current">
-    </ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../data-correlated-spectra/">Correlated Spectra</a>
                   </li>
               </ul>
       </div>
@@ -103,8 +117,8 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
-          <li class="breadcrumb-item">Data Specification</li>
-      <li class="breadcrumb-item active">Correlated Spectra</li>
+          <li class="breadcrumb-item">Gateware</li>
+      <li class="breadcrumb-item active">Note on FFT Implementation</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -113,16 +127,42 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="correlated-spectra">Correlated Spectra</h1>
+                <h1 id="a-note-on-caspers-fft-implementation">A Note on CASPER's FFT Implementation</h1>
+<h2 id="what-is-a-fast-fourier-transform-fft">What is a Fast Fourier Transform (FFT)</h2>
 <ul>
-<li>Brief paragraph about how this data is collected, with reference to more details in the gateware design overview</li>
-<li>Correlated spectra accumulation length. </li>
+<li>DFT, explain it as a matrix</li>
+</ul>
+<h2 id="radix-2-decomposition">Radix-2 Decomposition</h2>
+<ul>
+<li>Derive the Radix-2 decomposition from matrices</li>
+</ul>
+<h2 id="pipelining">Pipelining</h2>
+<ul>
+<li>explain how FFTs are usually optimized</li>
+</ul>
+<h2 id="biplexing">Biplexing</h2>
+<ul>
+<li>xyz </li>
+</ul>
+<h2 id="fft-shift-schedule">FFT Shift Schedule</h2>
+<ul>
+<li>What is the shift schedule. Link to how to program it in other document. </li>
+<li>What is the trade off in terms of resources etc.</li>
+</ul>
+<h2 id="bit-growth">Bit Growth</h2>
+<ul>
+<li>takes up more resources but at least doesn't raise the noise floor</li>
+</ul>
+<h2 id="symmetric-group-buffering">Symmetric Group Buffering</h2>
+<ul>
+<li>xyz cite Aaron Parson's symetric group paper and optimization</li>
 </ul>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../data-baseband/" class="btn btn-neutral float-left" title="Baseband"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../gateware-design/" class="btn btn-neutral float-left" title="Design Overview"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../gateware-modify-simulate/" class="btn btn-neutral float-right" title="Modify and Simulate">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -145,8 +185,10 @@
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../data-baseband/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../gateware-design/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
+    
+      <span><a href="../gateware-modify-simulate/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

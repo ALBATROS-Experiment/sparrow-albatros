@@ -1,6 +1,15 @@
 # Tuning the Gateware from Python
 
-The [Design Overview](gateware-design.md) section documents how the gateware is designed diagramatically in Matlab at a high level of abstraction. If you are unfamiliar with gateware design or are finding this section confusing you may want to read that section before this one.
+This section is about how to configure the gateware once the FPGA has been programmed. This means writing to a sequence of registers and BRAMs to:
+
+- Synchronize the logic
+- Select requantization depth (4-bit / 1-bit)
+- Set FFT parameters
+- Set the cross correlation parameters
+- Select frequency channels
+- Autotune the digital gain coefficients (4-bit mode only) 
+
+The [Design Overview](gateware-design.md) section documents how the gateware is designed in Simulink. If you are unfamiliar with gateware design or are finding this section confusing you may want to read that section before this one.
 
 ## Reading and Writing to Programmable Registers
 
