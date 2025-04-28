@@ -522,12 +522,15 @@ address. </p>
     </div>
 
 </div><h2 id="tuning-the-4-bit-digital-gain-coefficients-special-case">Tuning the 4-bit digital gain coefficients (special case)</h2>
-<p>TODO: write this section... here's an outline: 
-- To avoid non-converging, iterative hell of capturing 4 bit data and increasing or decreasing the digital gain coefficients on each channel (that may take forever to converge in the intermittent RFI case), we one-shot the 4-bit gain coefficients by getting a power reading from the on-board-correlator. 
-- Tune gateware so that it's collecting data as you'd like it to
-- Wait for the on board correlator's accumulator to fill up
-- Read the auto-correlations power in each channel to estimate the optimal digital-gain coefficient needed
-- Write the set the 4-bit digital gain coefficients. </p>
+<p>TODO: write this section... here's an outline: </p>
+<ul>
+<li>To avoid non-converging, iterative hell of capturing 4 bit data and increasing or decreasing the digital gain coefficients on each channel (that may take forever to converge in the intermittent RFI case), we one-shot the 4-bit gain coefficients by getting a power reading from the on-board-correlator. </li>
+<li>Tune gateware so that it's collecting data as you'd like it to</li>
+<li>Wait for the on board correlator's accumulator to fill up</li>
+<li>Read the auto-correlations power in each channel to estimate the optimal digital-gain coefficient needed</li>
+<li>Write the set the 4-bit digital gain coefficients. </li>
+</ul>
+<p>Now to actually implement this requires some book-keeping. </p>
 <h2 id="the-communication-stack">The communication stack</h2>
 <p>You may be wondering how Python is able to read from and write to FPGA registers. </p>
 <p><TODO: explain how the gateware is configured with user read/write-able registers. Start with a section explaining the communication stack, how the python code talks to the tcpborphserver over http, how this server is configured as a service controlled by systemctl, the tcp borph server talks to (which chip?) over SPI, how the SPI commands talk to the FPGA, how the CASPER framework implements a piece of SPI logic that recieves commands and writes/reads data to/from programable registers. Finish this off with a paragraph about how the CASPER framework implements .fpg files after binary implementation, also reference the compile, synthesis, implementation.></p>
