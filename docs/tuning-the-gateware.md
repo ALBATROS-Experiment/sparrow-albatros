@@ -44,11 +44,14 @@ TODO: write this section...
 ## Tuning the 4-bit digital gain coefficients (special case)
 
 TODO: write this section... here's an outline: 
+
 - To avoid non-converging, iterative hell of capturing 4 bit data and increasing or decreasing the digital gain coefficients on each channel (that may take forever to converge in the intermittent RFI case), we one-shot the 4-bit gain coefficients by getting a power reading from the on-board-correlator. 
 - Tune gateware so that it's collecting data as you'd like it to
 - Wait for the on board correlator's accumulator to fill up
 - Read the auto-correlations power in each channel to estimate the optimal digital-gain coefficient needed
 - Write the set the 4-bit digital gain coefficients. 
+
+Now to actually implement this requires some book-keeping. 
 
 
 ## The communication stack
