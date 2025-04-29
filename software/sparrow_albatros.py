@@ -315,7 +315,7 @@ class AlbatrosDigitizer(SparrowAlbatros):
             coeffs_pol1[chans] = quant4_delta / (pol11_stds[chans] * quant4_optimal)
             coeffs_pol0[chans] *= (1<<17) # bram is re-interpreted as ufix 32_17
             coeffs_pol1[chans] *= (1<<17) # bram is re-interpreted as ufix 32_17
-        elif OPT_COEFF_MODE="bitgrowth":
+        elif OPT_COEFF_MODE=="bitgrowth":
             pol00,pol11 = _pols['pol00'] / (1<<40), _pols['pol11'] / (1<<40)
             pol00_stds = np.sqrt(pol00 / (2*acc_len))
             pol11_stds = np.sqrt(pol11 / (2*acc_len))
