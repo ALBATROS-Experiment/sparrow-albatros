@@ -297,22 +297,34 @@ class AlbatrosDigitizer(SparrowAlbatros):
 
         self : AlbatrosDigitizer object for reading the acc
         chans : numpy integer array can be used to index accumulator pols"""
-        _pols = self.read_pols(['pol00','pol11'])
-        # these are read as int64 but they are infact 64_35 for autocorr and 64_34 for xcorr
-        pol00,pol11 = _pols['pol00'] / (1<<36), _pols['pol11'] / (1<<36) 
-        acc_len = self.cfpga.registers.acc_len.read_uint() # number of spectra to accumulate
-        pol00_stds = np.sqrt(pol00 / (2*acc_len)) # stds of re or imaginary parts
-        pol11_stds = np.sqrt(pol11 / (2*acc_len)) 
         # for the same channel, we want to apply same digital gain to each pol
         quant4_delta = 1/8  # 0.125 is the quantization delta for 4-bit signed 4_3 as on fpga
                             # clips at plus/minus 0.875
-        quant4_optimal = 0.353 # optimal 15-level quantization delta for gaussian with std=1
-        coeffs_pol0 = np.zeros(2048) # hard coded num of chans as 2048
-        coeffs_pol1 = np.zeros(2048) # hard coded num of chans as 2048
-        coeffs_pol0[chans] = quant4_delta / (pol00_stds[chans] * quant4_optimal)
-        coeffs_pol1[chans] = quant4_delta / (pol11_stds[chans] * quant4_optimal)
-        coeffs_pol0[chans] *= (1<<18)/2 # bram is re-interpreted as ufix 32_17
-        coeffs_pol1[chans] *= (1<<18)/2 # bram is re-interpreted as ufix 32_17
+        quant4_optimal = 0.293 # optimal 15-level quantization delta for gaussian with std=1
+        _pols = self.read_pols(['pol00','pol11'])
+        acc_len = self.cfpga.registers.acc_len.read_uint() # number of spectra to accumulate
+        OPT_COEFF_MODE="bitgrowth"
+        if OPT_COEFF_MODE=="legacy":
+            # these are read as int64 but they are infact 64_35 for autocorr and 64_34 for xcorr
+            pol00,pol11 = _pols['pol00'] / (1<<35), _pols['pol11'] / (1<<35) 
+            pol00_stds = np.sqrt(pol00 / (2*acc_len)) # stds of re or imaginary parts
+            pol11_stds = np.sqrt(pol11 / (2*acc_len)) 
+            coeffs_pol0 = np.zeros(2048) # hard coded num of chans as 2048
+            coeffs_pol1 = np.zeros(2048) # hard coded num of chans as 2048
+            coeffs_pol0[chans] = quant4_delta / (pol00_stds[chans] * quant4_optimal)
+            coeffs_pol1[chans] = quant4_delta / (pol11_stds[chans] * quant4_optimal)
+            coeffs_pol0[chans] *= (1<<17) # bram is re-interpreted as ufix 32_17
+            coeffs_pol1[chans] *= (1<<17) # bram is re-interpreted as ufix 32_17
+        elif OPT_COEFF_MODE="bitgrowth":
+            pol00,pol11 = _pols['pol00'] / (1<<40), _pols['pol11'] / (1<<40)
+            pol00_stds = np.sqrt(pol00 / (2*acc_len))
+            pol11_stds = np.sqrt(pol11 / (2*acc_len))
+            g0 = (1/8) / (0.293 * pol00_stds) # optimal gain coefficients
+            g1 = (1/8) / (0.293 * pol11_stds) # optimal gain coefficients
+            coeffs_pol0 = np.zeros(2048) # hard coded num of chans as 2048
+            coeffs_pol1 = np.zeros(2048) # hard coded num of chans as 2048
+            coeffs_pol0[chans] = g0[chans] * (1<<17)
+            coeffs_pol1[chans] = g1[chans] * (1<<17)
         # not sure where missing factor of two comes from 
         # sets stds to roughly 2.83 [plus-minus systematic 0.05])
         coeffs_pol0[coeffs_pol0 > (1<<31)-1] = (1<<31)-1 # clip coeffs at max signed-int value
