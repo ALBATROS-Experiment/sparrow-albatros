@@ -323,8 +323,8 @@ class AlbatrosDigitizer(SparrowAlbatros):
             g1 = (1/8) / (0.293 * pol11_stds) # optimal gain coefficients
             coeffs_pol0 = np.zeros(2048) # hard coded num of chans as 2048
             coeffs_pol1 = np.zeros(2048) # hard coded num of chans as 2048
-            coeffs_pol0[chans] = g0[chans] * (1<<17)
-            coeffs_pol1[chans] = g1[chans] * (1<<17)
+            coeffs_pol0[chans] = g0[chans] * (1<<15)
+            coeffs_pol1[chans] = g1[chans] * (1<<15)
         # not sure where missing factor of two comes from 
         # sets stds to roughly 2.83 [plus-minus systematic 0.05])
         coeffs_pol0[coeffs_pol0 > (1<<31)-1] = (1<<31)-1 # clip coeffs at max signed-int value
