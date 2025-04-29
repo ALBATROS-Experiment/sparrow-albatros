@@ -2,14 +2,15 @@ Bit growth in FFT, first compile *without thorough simulation or hardware testin
 - `sparrow_albatros_spec_2025-04-17_2017-xc7z030.fpg`
 - `sparrow_albatros_spec_2025-04-17_2115-xc7z035.fpg`
 
-**Imperative Summary**
+## Imperative Summary
+
 The (12-stage) FFT bit-grows by 6 bits, which should lower the FFT noise-floor to the minimum given that the polyphase structure adds 6 bits of padding. I chose to get rid of a few bits in the on board correlator so that the fatter outputs could fit comfortably into 64-bit-wide accumulator BRAMs.
 
 Key decisions made: 
 - The correlator can accumulate up to 68 seconds but we don't usually correlate more than 6 seconds. This comes at the expense of a few LSBs. We can trade 1 LSB for a doubling in the amount of correlation time.
 - We could do a full bit growth to see if that improves anything on what was implemented in this release. If I had infinite time I would test this too. 
 
-**Details**
+## Details
 
 The data is `Fix_12_11` coming out of the ADCs, the polyphase stage pads it with an additional 6 LSBs to turn it into `Fix_18_17`.
 
@@ -57,11 +58,17 @@ The cross-correlation stage is a conjugate multiply of two different signals. It
 
 ![image](https://github.com/user-attachments/assets/6a531ecd-0243-49f4-a2f7-b70c7073b81d)
 
+## Amendment 
 
+Damn! I got the fucking bit fucking bullshit binary point index wrong. Okay, time to recompile. First imma document. Here's the thing I got wrong:
 
+![image](https://github.com/user-attachments/assets/32d48098-880f-468f-99a9-6165e6cb687d)
 
+Here's what we're correcting all these blocks to:
 
+![image](https://github.com/user-attachments/assets/458cb9c4-23f7-4c3d-b0bc-2fcca268418f)
 
+Lets see if it works as expected...
 
 
 
