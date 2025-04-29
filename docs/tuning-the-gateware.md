@@ -74,13 +74,13 @@ where $P$ is the power read from the autocorr BRAM interpreted as a UInt64. The 
 We must therefore multiply the signals by a gain factor, $g$, such that 
 
 $$
-g \cdot \sigma = \frac{1/8}{0.293} \RA g = \frac{1/8}{0.293 \cdot \sigma}.
+g \cdot \sigma = \frac{1/8}{0.293} \Rightarrow g = \frac{1/8}{0.293 \cdot \sigma}.
 $$
 
-This factor is written to BRAM as a UInt_32 but it's reinterpreted as a `Fix_32_17`, so we need to multiply $g$ by $2^17$ before writing it. The following is a code snippet for computing the optimal gain.
+This factor is written to BRAM as a `UInt_32` but it's reinterpreted as a `Fix_32_17`, so we need to multiply $g$ by $2^{17}$ before writing it. The following is a code snippet for computing the optimal gain.
 
 ```python
-pol00 = read_pols(['pol00','pol11'])['pol00'] * (1<<40) # Each frequency channel has different power
+pol00 = read_pols(['pol00','pol11'])['pol00'] / (1<<40) # Each freq channel has different power
 stds0 = np.sqrt(pol00 / (2 * acc_len))                  # ...and therefore a different STD
 gs = (1/8) / (0.293 * stds0)                            # Calculate the digital gains
 gs *= (1<<17)                                           # Multiply by 2^17 for packaging
@@ -90,7 +90,7 @@ gs[np.where(gs > (1<<31)-1)] = (1<<31)-1                # Clip the gains so that
 
 ...as implemented in 
 
-::: sparrow_albatros::AlbatrosDigitizer::get_optimal_coeffs_from_acc 
+::: sparrow_albatros.AlbatrosDigitizer.get_optimal_coeffs_from_acc 
 
 ## The communication stack
 
