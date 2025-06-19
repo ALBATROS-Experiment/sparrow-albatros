@@ -262,16 +262,22 @@ Other user read/writeable registers are scattered throughout the design.
 
 ![image](https://github.com/user-attachments/assets/92f41e80-d411-49e6-a489-9bc1cd704244)
 
-`four_bit_quant_clip_count` *TODO*
+`four_bit_quant_clip_count` is a readable register that counts the amount of four-bit clipping events. It increments by one when one of the four re/im pol0/pol1 values saturates four bit re-quantizer. 
 
 ![image](https://github.com/user-attachments/assets/61d9f33b-769a-4a5d-a905-d28dbd13ec01)
 
 
-`spectra_per_packet` *TODO*
+`spectra_per_packet` specifies the amount of spectra to include in each UDP packet. We're not using jumbo frames so we limit the spectra per packet to a number small enough for regular ethernet UDP frames. This register is written to at the tuning stage. The register holds an unsigned 32 bit integer, but only the five least significant bits are used. 
+
+```python
+MTU=1500 # max number of bytes in a packet
+assert spectra_per_packet < (1<<5), "spec-per-pack too large for slice, aborting"
+assert spectra_per_packet * bytes_per_spectrum <= MTU-8, "Packets too large, will cause fragmentation"
+```
 
 ![image](https://github.com/user-attachments/assets/ce1b0a74-604e-4658-a7f9-52226a5e6038)
 
-`bytes_per_spectrum` *TODO*
+`bytes_per_spectrum` 
 
 ![image](https://github.com/user-attachments/assets/8a3a2dc9-285b-496d-9a9a-5f2839976327)
 
