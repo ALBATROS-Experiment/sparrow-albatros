@@ -48,7 +48,7 @@ nav:
     - Dumping correlated spectra: embedded/dump-spectra.md
     - Networking: embedded/networking.md
   - Gateware:
-    - Installing the Toolchain: gateware/installing-the-toolchain.md
+    - Installing the Toolflow: gateware/installing-the-toolflow.md
     - Design Overview: gateware/gateware-design.md
     - Note on FFT Implementation: gateware/fft-note.md
     - Modify and Simulate: gateware/gateware-modify-simulate.md

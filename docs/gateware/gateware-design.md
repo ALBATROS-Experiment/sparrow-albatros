@@ -58,7 +58,7 @@ A TVG enables the developer to mux in values from a user-writeable BRAM instead 
 
 ## Requantization
 
-After the PFB (and TVG), each FFT'd signal is split three ways. 
+After the PFB (and TVG), each FFT'd signal branches three ways:
 
 - The on-board correlator (skip ahead to the [correlator section](gateware-design.md#on-board-correlator))
 - 4-bit requantization
@@ -78,10 +78,10 @@ For example, if you were interested in channels 420 and above, you would configu
     {"name": "clk", "wave": "p......"},
     {},
     {"name": "sync (4-bit)", "wave": "010...."},
-    {"name": "four-bit data", "wave": "x.=.=.=", "data": ["Channel 420", "Channel 421", "Ch 422"], "phase": 0},
+    {"name": "four-bit data", "wave": "x.4.4.4", "data": ["Channel 420", "Channel 421", "Ch 422"], "phase": 0},
     {},
     {"name": "sync (1-bit)", "wave": "0.10..."},
-    {"name": "one-bit data", "wave": "x..====", "data": ["420/1", "422/3", "424/5", "426/7"], "phase": 0}
+    {"name": "one-bit data", "wave": "x..4444", "data": ["420/1", "422/3", "424/5", "426/7"], "phase": 0}
   ],
   "config": {
     "hscale": 2,
@@ -104,58 +104,118 @@ In parallel we quantize each component (real/imaginary) of each frequency channe
 
 ![image](https://github.com/user-attachments/assets/681d4e86-7b5c-44b6-9e64-b2f9b52ff31f)
 
-## Packetiser
+## Payload Packetiser
 
-The packetiser *TODO: explaim more*
+The payload packetiser is a logical subsystem that creates payloads for the UDP packets which are broadcast over ethernet on SFP0. It bundles re-quantized data, either 1-bit or 4-bit quantized, with the spectrum number, which counts the number of FFTs which have been performed so that we can tell 1) whether we have dropped any UDP packets and 2) which UDP packets we have dropped. The logic that generates UDP packet headers and bundles these with our payloads is taken care of by a Xilinx IP. Our payload packetiser subsystem is directly upstream of this UDP packetiser logic and interfaces with it over three busses: data (8 bits wide), valid line (1 bit), end-of-frame line (EOF, 1 bit). Pull the valid line high simultaneously with valid data (data that you want to transmit) on your eight-lane bus, and low when the data on the data bus is trash. A UDP payload buffer fills up with valid data until you pull the end-of-frame line high simultaneously with the last valid data point. 
 
 ![image](https://github.com/user-attachments/assets/d4f9f32a-99fe-4119-9472-fe3d81c45a14)
 
-TODO: actual wavedrom diagram, below is dummy
+*Caption: the payload packetizer subsystem is the white block labelled 'packetiser'. It has three input busses and three output busses, but it also takes input from readable and writable registers hidden beneath the subsystem mask.*
+
+For example, lets say we have one bit data and the only channels we care about are 420 through 427 inclusive, the timing diagram at the input of the payload packetiser, as we saw above in the requantization section, looks something like the following. 
+
 <script type="WaveDrom">
 {
   "signal": [
-    {"name": "clk", "wave": "p.....|..."},
-    {"name": "dat", "wave": "x.345x|=.x", "data": ["head", "body", "tail", "data"]},
-    {"name": "req", "wave": "0.1..0|1.0"},
-    {},
-    {"name": "ack", "wave": "1.....|01."}
-  ]
+    {"name": "clk", "wave": "p......"},
+    {"name": "data", "wave": "xx4444x", "data": ["420/1", "422/3", "424/5", "426/7"]},
+    {"name": "sync", "wave": "010...."},
+  ],
+  "config": {
+    "hscale": 2,
+    "skin": "narrow"
+  },
+  "head": {
+    "text": "Payload Packetiser Upstream"
+  },
+  "foot": {
+    "text": "Timing diagram upstream of payload packetiser."
+  }
 }
 </script>
 
+The sync pulse is only generated once and the logic is synchronised only once, so every subsequent input will have only the data line with anything of interest on it. The downstream logic knows to expect the pattern to repeat every 2048 clocks. The timing diagram downstream of the payload packetiser looks alternatively like either of the following three diagrams. 
 
-blah blih blough
+<script type="WaveDrom">
+{
+  "signal": [
+      {"name": "clk", "wave": "p......"},
+    ["First",
+      {"name": "data", "wave": "x333344", "data": ["Spec#","Spec#","Spec#","Spec#", "420/1", "422/3"]},
+      {"name": "valid", "wave": "01....."},
+      {"name": "EOF", "wave": "0......"},
+    ],
+    ["Middle",
+      {"name": "data", "wave": "x4444xx", "data": ["420/1", "422/3","424/5", "426/7"]},
+      {"name": "valid", "wave": "01...0."},
+      {"name": "EOF", "wave": "0......"},
+    ],
+    ["Final",
+      {"name": "data", "wave": "x4444xx", "data": ["420/1", "422/3","424/5", "426/7"]},
+      {"name": "valid", "wave": "01...0."},
+      {"name": "EOF", "wave": "0...10."},
+    ]
+
+  ],
+  "config": {
+    "hscale": 2,
+    "skin": "narrow"
+  },
+  "head": {
+    "text": "Payload Packetiser Downstream"
+  },
+}
+</script>
+
+User facing registers tell the packetiser 1) how many FFT frames go into each packet and 2) how many clocks the valid pulse should last on each frame--which is directly related to the number of channels we want to preserve. Lets take a closer look at the logic that accomplishes the generation and pulsing.  
+
 
 ![image](https://github.com/user-attachments/assets/7c499f13-fe07-4ca6-aa7e-0b83687c7edd)
 
-Lorum
+The sync and reset lines trigger a reset of the FFT-frame (/spectrum) counter, "spectra-counter". This counter is a UFix 43 bit counter, the most significant 32-bits are sliced and bussified onto a byte-wide bus. These four bytes populate the first four bytes of each UDP packet payload. This spectrum number is written to disk as per specified in our data format [need link to data format spec]. The 11th LSB is also sliced out and used to trigger a "new spectra" pulse. This pulse which anounces a new FFT-frame or "spectrum" is multi-purposes, it: 
+
+- synchronises the 32-bit spectrum number bussifier (so that the bits come out in sync with the first valid data point)  
 
 ![image](https://github.com/user-attachments/assets/84a8d566-3856-4534-b621-6db6178840a4)
 
-Ipsum
-
-![image](https://github.com/user-attachments/assets/8282f16c-8bed-42e3-9695-06b7bc48a5c7)
-
-Comunitatus
+- increments another counter, "packet_spec_counter", by one which, in turn,  
+    - triggers the valid line on the first spectrum of the packet to include the spectrum number
+    - triggers the end-of-frame line on the last spectrum of the packet to tell the UDP packetizer to bundle and send the buffered payload. The user sets the spectra per packet from python by writing an integer to the (above) yellow "spectra_per_packet" register. 
 
 ![image](https://github.com/user-attachments/assets/e536e121-464c-4b61-8093-ad520ceb6ea3)
 
-Once the data has been packetized, it goes into the `one_gbe` block, and the CASPER framework takes care of the plumbing to pipe this into the correct Xilinx IP that implements UDP packetizing, and routs it to the correct physical SFP port (SFP0). In the image, a helpful user-readable buffer-overflow counter `tx_of_cnt` keeps track of overflowing packets, and the signal coming out of our user-defined packetizer also routs *in simulation only* to a virtual oscilascope.
+- triggers a pulse-extender that pulls high the valid line for the number of clocks required to for each spectrum. The user sets the number of bytes in each spectrum by writing said value into the (above) yellow "bytes_per_spectrum" register. The number of bytes in each spectrum is a function of the number of channels saved as well as the re-quantization depth (4+4 bits vs 1+1 bit per sample). 
+
+![image](https://github.com/user-attachments/assets/8282f16c-8bed-42e3-9695-06b7bc48a5c7)
+
+Once the data is packetized, it's checked into the `one_gbe` block, and the CASPER framework takes care of the plumbing to pipe this into the correct Xilinx IP that implements UDP packetizing, and routs it to the correct physical SFP port (SFP0). In the image, a helpful user-readable buffer-overflow counter `tx_of_cnt` keeps track of overflowing packets, and the signal coming out of our user-defined packetizer also routs *in simulation only* to a virtual oscilascope.
 
 ![image](https://github.com/user-attachments/assets/81af2f1e-c9aa-4a68-b5d5-fb50447d2e5a)
 
-
-
 ## On-board correlator
-The signal path branches after the FFT. In the previous section we looked at re-quantization, data selection, and UDP packetizing, here we look at the second branch down-stream of the FFT: the on board correlator (OBC). The OBC computes the auto and cross correlations of the two digital signals it has access to. The power in each pol is computed with a simple accumulator. Real and imaginary components of the cross correlation are similarly calculated. The result is dumped periodically into addressable BRAM registers `pol00`, `pol11`, `pol01r`, `pol01i`. 
+
+The signal path branches after the FFT. In the previous section we looked at re-quantization, data selection, and UDP packetizing, here we look at the second branch down-stream of the FFT: the correlator. The correlator computes auto- and cross-correlations of both channelized signals. The power in each pol is computed with a simple accumulator. Real and imaginary components of the cross correlation are similarly calculated. The result is dumped periodically into addressable BRAM registers `pol00`, `pol11`, `pol01r`, `pol01i`. Mathematically, the correlator computes autocorrelations, 
+
+$$P_{00}[k] = \sum_{l=0}^{N-1}|y_0[k,l]|^2,$$
+
+and cross correlations,
+
+$$P_{01}[k] = \sum_{l=0}^{N-1}y_0[k,l] \cdot y_1[k,l]^\ast,$$
+
+where $y_s[k,l]$ is the $l$'th spectrum's $k$'th frequency channel's data from pol-$s$. Real and imaginary terms of the cross-correlations are accumulated in seperate BRAMs as all the arithmetic is carried out on real integers. 
+
 ![image](https://github.com/user-attachments/assets/b76d2983-9580-4acd-8d1c-ef4f29060695)
 
 ### Correlator accumulator book-keeping
-It's important to do some book-keeping to make sure the correlator BRAMs won't overflow. If the signal is `U37_36` and the accumulator BRAM is `U64_35` then we can only accumulate `2^28` samples samples (per channel), in seconds the accumulator BRAM fills up in `2^28*4096/250e6 = 4398` seconds, which is over an hour. We will never want to accumulate more than a few seconds. 
+
+It's important to do some book-keeping to make sure the correlator BRAMs don't overflow. If the signal is `U37_36` and the accumulator BRAM is `U64_35` then we can only accumulate `2^28` samples samples (per channel), in seconds the accumulator BRAM fills up in `2^28*4096/250e6 = 4398` seconds, which is over an hour. We will never want to accumulate more than a few seconds. 
 
 However, the calculus changes if we implement FFT bit-growth to avoid doing a full shift schedule. If we grow the data by one bit on every FFT butterfly stage we're eating up 12 bits, which means that it becomes logically possible for the accumulator BRAMs to overflow after only one second, which is unacceptable. This means we either have to grow our BRAMs or do something to reduce the bit depth of these numbers. 
 
+The latest version of the firmware implements 8-bits of bitgrowth, the full twelve is not needed as our 12 bit data is already LSB-padded by four bits in the stack-and-sum stage of the PFB (upstream of the FFT). After eight bits of growth in the FFT the data is 24 bits wide; four LSBs are sliced off in the correlator branch so that it fits snugly in the correlator's accumulators. 
+
 ## User read/writeable registers
+
 We make use of all named addressable registers in this design so it's worth knowing what each of them does. (The left-pointing pentagonal tags mean *goto* and are paired with right-pointing ones of the same name.)
 
 - `gbe_en` GigaBit Ethernet interface ENable. Single bit, 0 for disable, 1 for enable.
