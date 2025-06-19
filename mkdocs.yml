@@ -41,20 +41,30 @@ extra_css:
 nav: 
   - Home: index.md
   - Embedded Software:
-    - Run the DAQ, collect data: data-collection.md
-    - Tuning the gateware: tuning-the-gateware.md
-    - Optimal Digital Gain Coefficients (4-bit): digital-gain-coefficients-4bit.ipynb
-    - Dumping baseband: dump-baseband.md
-    - Dumping correlated spectra: dump-spectra.md
-    - Networking: networking.md
+    - Run the DAQ, collect data: embedded/data-collection.md
+    - Tuning the gateware: embedded/tuning-the-gateware.md
+    - Optimal Digital Gain Coefficients (4-bit): embedded/digital-gain-coefficients-4bit.ipynb
+    - Dumping baseband: embedded/dump-baseband.md
+    - Dumping correlated spectra: embedded/dump-spectra.md
+    - Networking: embedded/networking.md
   - Gateware:
-    - Installing the Toolchain: installing-the-toolchain.md
-    - Design Overview: gateware-design.md
-    - Note on FFT Implementation: fft-note.md
-    - Modify and Simulate: gateware-modify-simulate.md
-    - Compile, Synthesize, Implement: gateware-compile-synthesize-implement.md
+    - Installing the Toolchain: gateware/installing-the-toolchain.md
+    - Design Overview: gateware/gateware-design.md
+    - Note on FFT Implementation: gateware/fft-note.md
+    - Modify and Simulate: gateware/gateware-modify-simulate.md
+    - Compile, Synthesize, Implement: gateware/gateware-compile-synthesize-implement.md
   - Disk Images:
     - Installing Sparrow Albatros: installing-sparrow-albatros.md
   - Data Specification:
     - Baseband: data-baseband.md
     - Correlated Spectra: data-correlated-spectra.md
+  - Thesis:
+    - Thesis Overview: thesis/ch1-thesis-overview.md
+    - Science Intro: thesis/ch2-science-intro.md
+    - ALBATROS Experiment: thesis/ch3-albatros-experiment.md
+    - SNAP Readout System: thesis/ch4-snap-readout.md
+    - Sparrow Readout System: thesis/ch5-sparrow-readout.md
+    - Field Results: thesis/ch6-field-results.md
+
+
+
