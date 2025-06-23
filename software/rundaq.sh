@@ -51,10 +51,6 @@ echo "screen: dump spectra launched"
 screen -dmS baseband bash -c "$PYTHON_PATH set_optimal_coeffs.py && sleep 20 && sudo ./dump_baseband"
 echo "screen: dump baseband launched"
 
-#$PYTHON_PATH set_optimal_coeffs.py
-#sleep 1
-#sudo ./dump_baseband
-
 echo "Done! Sessions running in background."
 
 

@@ -316,18 +316,15 @@ class AlbatrosDigitizer(SparrowAlbatros):
             coeffs_pol0[chans] *= (1<<17) # bram is re-interpreted as ufix 32_17
             coeffs_pol1[chans] *= (1<<17) # bram is re-interpreted as ufix 32_17
         elif OPT_COEFF_MODE=="bitgrowth":
-            pol00,pol11 = _pols['pol00'], _pols['pol11']
+            pol00,pol11 = _pols['pol00'] / (1<<40), _pols['pol11'] / (1<<40)
             pol00_stds = np.sqrt(pol00 / (2*acc_len)) 
             pol11_stds = np.sqrt(pol11 / (2*acc_len))
             g0 = (1/8) / (0.293 * pol00_stds) # optimal gain coefficients
             g1 = (1/8) / (0.293 * pol11_stds) # optimal gain coefficients
-            # scale to account for bit depths (1<<15)/sqrt(1<<40) = 1/(1<<5)
-            g0 /= (1<<5)
-            g1 /= (1<<5)
             coeffs_pol0 = np.zeros(2048) # hard coded num of chans as 2048
             coeffs_pol1 = np.zeros(2048) # hard coded num of chans as 2048
-            coeffs_pol0[chans] = g0[chans] * 1.414 # fudge factor sqrt 2
-            coeffs_pol1[chans] = g1[chans] * 1.414 # fudge factor sqrt 2 
+            coeffs_pol0[chans] = g0[chans] * (1<<15) * 1.414 # fudge factor sqrt 2
+            coeffs_pol1[chans] = g1[chans] * (1<<15) * 1.414 # fudge factor sqrt 2 
         # not sure where missing factor of two comes from 
         # sets stds to roughly 2.83 [plus-minus systematic 0.05])
         coeffs_pol0[coeffs_pol0 > (1<<31)-1] = (1<<31)-1 # clip coeffs at max signed-int value
