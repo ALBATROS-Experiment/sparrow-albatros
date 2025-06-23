@@ -92,9 +92,10 @@ Sanity check your signal.
 <br>
 To verify the integrity of your signal, use -X port forwarding and run `python livespec.py 0 125` (in the "daq" directory, `~/sparrow_albatros/software`).
 
-![Sparrow spectrum, in lab piped signal and FM radio](https://github.com/user-attachments/assets/d1c7f690-348c-4c7f-9711-fd50920e5c24)
 
-<br/><br/>
+<img src="https://github.com/user-attachments/assets/d1c7f690-348c-4c7f-9711-fd50920e5c24" alt="Sparrow spectrum, in lab piped signal and FM radio stations"></img>
+
+<br/>
 </details>
 
 
