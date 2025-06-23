@@ -1,6 +1,6 @@
 # Sparrow Albatros 
 
-This repository serves three purpouses. The first is to house and version control **embedded software** that runs on the Sparrow's ARM's processor. The second is to house and version control **gateware** that runs on the Sparrow's FPGA. The third is to store and checkpoint **disk-images** of the OS that run the data acquisition software. The embedded software mates with the gateware, so it's conveniant to track them in the same repository. 
+[This repository](https://github.com/alBATROS-Experiment/sparrow-albatros/) serves three purpouses. The first is to house and version control **embedded software** that runs on the Sparrow's ARM's processor. The second is to house and version control **gateware** that runs on the Sparrow's FPGA. The third is to store and checkpoint **disk-images** of the OS that run the data acquisition software. The embedded software mates with the gateware, so it's conveniant to track them in the same repository. 
 
 ## Embedded software
 
