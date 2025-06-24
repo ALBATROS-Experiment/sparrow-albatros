@@ -5,9 +5,10 @@
 1. **Power and boot** the Sparrow system box, connect the ethernet port to your laptop with an ethernet cable (RJ45 connector, you'll need an ethernet port or dongle for your laptop)
 2. **SSH** into the Ubuntu OS running on the Sparrow's ARM core with `ssh casper@10.10.11.99`, enter the password, "casper", when prompted. The Sparrow's ARM is configured to statically assign it's Eth0 interface to the `10.10.11.99` ipv4 address. If you have trouble with the next two steps you may need to configure your laptop's wired ethernet interface manually to be on the 10.10.xx.xx subnet (subnet mask 255.255.0.0, with an IP address e.g. 10.10.11.55)
 3. **Mount a hard drive** connected over usbA port to this mountpoint: `/media/BASEBAND` with this command `sudo mount /dev/<your HD partition e.g. sda2> /media/BASEBAND`. Then execute `lsblk` to identify connected hard drives (only ext4 formated hard drives are supported). Make sure that the HDD's mounted partition has a `/baseband` subdirectory in its root directory. If not, create one.
-4. Change directory to the data acquisition directory using the aliased shortcut `daq` (you should now be in `/home/casper/sparrow-albatros/software`). 
-5. Edit the `config.ini` configuration file to suit your needs.
-6. Run the DAQ in sudo by executing `sudo ./rundaq.sh`.
+4. **Run data acquisition** (DAQ)
+    - Change directory to the data acquisition directory using the aliased shortcut `daq` (you should now be in `/home/casper/sparrow-albatros/software`). 
+    - Edit the `config.ini` configuration file to suit your needs.
+    - Run the DAQ in sudo by executing `sudo ./rundaq.sh`.
 
 That's it!
 
@@ -21,7 +22,7 @@ Sanity check the terminal output. A successful execution looks something like th
 </summary>
 
 ```
-sudo ./rundaq.sh 
+$ sudo ./rundaq.sh 
 [sudo] password for casper: 
 This script will configure the fpga, run dump_baseband and dump_spec.py. Make sure that a drive is mounted and that config.ini is configured the way you want it before you proceed. Run this script in sudo.
 cd into daq
@@ -90,8 +91,8 @@ Done! Sessions running in background.
 Sanity check your signal.
 </summary>
 <br>
-To verify the integrity of your signal, use -X port forwarding and run `python livespec.py 0 125` (in the "daq" directory, `~/sparrow_albatros/software`).
 
+To verify the integrity of your signal, use -X port forwarding and run `python livespec.py 0 125` (in the "daq" directory, `~/sparrow_albatros/software`).
 
 <img src="https://github.com/user-attachments/assets/d1c7f690-348c-4c7f-9711-fd50920e5c24" alt="Sparrow spectrum, in lab piped signal and FM radio stations"></img>
 
