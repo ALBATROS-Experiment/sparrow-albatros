@@ -9,14 +9,14 @@ This section is about how to configure the gateware once the FPGA has been progr
 - Select frequency channels
 - Autotune the digital gain coefficients (4-bit mode only) 
 
-The [Design Overview](gateware-design.md) section documents how the gateware is designed in Simulink. If you are unfamiliar with gateware design or are finding this section confusing you may want to read that section before this one.
+The [Design Overview](../gateware/gateware-design.md) section documents how the gateware is designed in Simulink. If you are unfamiliar with gateware design or are finding this section confusing you may want to read that section before this one.
 
 ## Reading and Writing to Programmable Registers
 
 In Python the CasperFpga class allows you to interface with named FPGA registers. The gateware needs to be tuned and configured according to the user's needs, such as which channels to pick and which what bit mode to select. This configuration happens in five steps. 
 
 - Setup. TODO
-- Set the channel order. Re-order the frequency channels so that the UDP payload packetizer selects the correct channels. For example, to select only channels 120:136 you must re-order the channels so that 120:136 occur at the beginning of each frame. For deeper explanation of why we need to do this see the [packetizer section](gateware-design.md#packetiser). 
+- Set the channel order. Re-order the frequency channels so that the UDP payload packetizer selects the correct channels. For example, to select only channels 120:136 you must re-order the channels so that 120:136 occur at the beginning of each frame. For deeper explanation of why we need to do this see the [packetizer section](../gateware/gateware-design.md#packetiser). 
 - Optionally set the 4 bit coefficients. 
 - Tune. TODO
 - Optionally update the 4 bit coefficients based on OBC data. TODO

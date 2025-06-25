@@ -18,9 +18,9 @@ The good: the user can jump right in and design, simulate, compile, implement, a
 
 The bad: it is impossible to track small diffs with modern version control tools (git) between two commits because the .slx files, being diagramatic rather than text based, are big and stored in compressed binary format. 
 
-The ugly side is that [the toolchain](installing-the-toolchain.md) is very brittle and annoying to set up. You need a precise Ubuntu distribution, which means you can't just set it up on any linux machine without reinstalling the operating system and migrating all users to that new OS. Not to mention that you need to buy, install, set up and periodically renew licences for bulky (~300 GB), propriotary Xilinx (AMD) software (Vivado) and Matlab's Simulink software. 
+The ugly side is that [the toolflow](installing-the-toolflow.md) is very brittle and annoying to set up. You need a precise Ubuntu distribution, which means you can't just set it up on any linux machine without reinstalling the operating system and migrating all users to that new OS. Not to mention that you need to buy, install, set up and periodically renew licences for bulky (~300 GB), propriotary Xilinx (AMD) software (Vivado) and Matlab's Simulink software. 
 
-Once you have the toolchain running and are ready to assemble your first design, you'll notice that there are many different types of color-coded block. 
+Once you have the toolflow running and are ready to assemble your first design, you'll notice that there are many different types of color-coded block. 
 
 - The yellow (CASPER) blocks are IO bocks. They map hardware pins to logic, define user programmable BRAMS and registers
 - The green (CASPER) blocks are (vaguely) DSP blocks. They implement logic to manipulate data. 

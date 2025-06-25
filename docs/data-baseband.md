@@ -24,13 +24,13 @@ The baseband data flows through the following processing chain:
 5. Packets are transmitted over UDP to a receiving computer
 6. The `dump_baseband` utility captures these packets and writes them to disk
 
-For details on the baseband data collection process see the [Embedded Software/Dumping Baseband](dump-baseband.md) page.
+For details on the baseband data collection process see the [Embedded Software/Dumping Baseband](embedded/dump-baseband.md) page.
 
 ## Baseband Data Format
 
 ### Packetization and Limitations
 
-As described in the [gateware design overview](gateware-design.md#packetiser), the baseband data is packetized in the FPGA before transmission. The packetization process imposes some limitations on the data, particularly for 1-bit mode:
+As described in the [gateware design overview](gateware/gateware-design.md#packetiser), the baseband data is packetized in the FPGA before transmission. The packetization process imposes some limitations on the data, particularly for 1-bit mode:
 
 - Data is bussified onto an 8-bit bus before packetization
 - For 4-bit data (4 bits real + 4 bits imaginary for each polarization), this fundamentally limits us to 1024 of 2048 channels
