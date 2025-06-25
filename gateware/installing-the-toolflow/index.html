@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Installing the Toolflow - Sparrow Albatros</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="../../stylesheets/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Installing the Toolflow";
+        var mkdocs_page_input_path = "gateware/installing-the-toolflow.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/c.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Sparrow Albatros
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Embedded Software</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../embedded/data-collection/">Run the DAQ, collect data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../embedded/tuning-the-gateware/">Tuning the gateware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../embedded/digital-gain-coefficients-4bit/">Optimal Digital Gain Coefficients (4-bit)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../embedded/dump-baseband/">Dumping baseband</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../embedded/dump-spectra/">Dumping correlated spectra</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../embedded/networking/">Networking</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Gateware</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Installing the Toolflow</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#system-perparation">System Perparation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#vivado-20222-installation-process">Vivado 2022.2 Installation Process</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#vivado-20211-installation">Vivado 2021.1 Installation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#vivado-licence-configuration">Vivado Licence Configuration</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#matlab-installation">MATLAB Installation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#python-environment-setup">Python Environment Setup</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#casper-toolflow-configuration">CASPER Toolflow Configuration</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#library-conflict-problem">Library Conflict Problem</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#verification-and-testing">Verification and Testing</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#additional-considerations">Additional Considerations</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#concluding-remarks">Concluding Remarks</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../gateware-design/">Design Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fft-note/">Note on FFT Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../gateware-modify-simulate/">Modify and Simulate</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../gateware-compile-synthesize-implement/">Compile, Synthesize, Implement</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Disk Images</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installing-sparrow-albatros/">Installing Sparrow Albatros</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Data Specification</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-baseband/">Baseband</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-correlated-spectra/">Correlated Spectra</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Thesis</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../thesis/ch1-thesis-overview/">Thesis Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../thesis/ch2-science-intro/">Science Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../thesis/ch3-albatros-experiment/">ALBATROS Experiment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../thesis/ch4-snap-readout/">SNAP Readout System</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../thesis/ch5-sparrow-readout/">Sparrow Readout System</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../thesis/ch6-field-results/">Field Results</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Sparrow Albatros</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Gateware</li>
+      <li class="breadcrumb-item active">Installing the Toolflow</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="casper-toolflow">CASPER Toolflow</h1>
+<p><img alt="⚠" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/26a0.svg" title=":warning:" /> The toolflow <em>will not work</em> if it is installed on a version of Ubuntu that's not supported. For the latest official CASPER toolflow installation guide visit <a href="https://casper-toolflow.readthedocs.io/en/latest/src/Installing-the-Toolflow.html">the CASPER tutorial docs</a>. It's safest to assume you must abide every version and subversion and installation detail <em>by the letter</em>.</p>
+<p>Although we ended up using CASPER virtual machine for compiles, which means we ultimately didn't use the natively instlaled toolchain, we here briefly summarize <a href="https://gist.github.com/dcxSt/13f0760ee423082f15e151170b943fa6">the hurdles we came upon during native installation</a>. You will notice that I failed to heed CASPER's warning advice and tried to install the toolflow on the wrong version of Ubuntu (22.04 instead of 20.04). </p>
+<h2 id="introduction">Introduction</h2>
+<p>This section documents the installation and configuration of the CASPER toolflow on Ubuntu 22.04.1, specifically addressing the integration challenges between MATLAB R2021a, Xilinx Vivado 2021.1, and the CASPER development environment. While the CASPER developers have indicated that this specific combination of software versions is unsupported and can cause simulation failures in Simulink, this guide provides (some) solutions to the critical compatibility issues encountered during installation.</p>
+<h2 id="system-perparation">System Perparation</h2>
+<p>The installation begins with a fresh Ubuntu 22.04.1 installation on an SSD. After creating a user account and connecting to the network for updates, several essential tools need to be installed. The system requires SSH server capabilities for remote access, which can be configured with custom port settings and public key authentication for enhanced security. Git and Git LFS are essential for managing the CASPER repository and its large files.</p>
+<p>Additional system utilities such as htop, vim, and net-tools provide necessary system monitoring and network configuration capabilities. The net-tools package is particularly important as it provides the ifconfig command required for network interface management.</p>
+<h2 id="vivado-20222-installation-process">Vivado 2022.2 Installation Process</h2>
+<p>The installation of Vivado 2022.2 requires downloading the web installer from Xilinx's official download portal. Before proceeding with the installation, several system dependencies must be addressed to prevent installation failures. The critical dependencies are libtinfo5, libncurses5, libcanberra-gtk-module, and libcanberra-gtk3-module. Without these packages, the installation process typically stalls during the "Generating installed devices list" phase, and the completed installation may experience display issues where labels fail to render in schematics and device cells.</p>
+<p>After installing these dependencies, the Vivado installer can be executed with appropriate permissions. The installation process includes selecting Vitis and enabling the Vitis IP cache. The download and installation process typically requires approximately two hours, with the full installation consuming 83 GB of disk space.</p>
+<h2 id="vivado-20211-installation">Vivado 2021.1 Installation</h2>
+<p>The installation process for Vivado 2021.1 follows the same procedure as version 2022.2, requiring the same system dependencies. Both versions can coexist on the same system, which can be useful for compatibility testing with different CASPER toolflow versions.</p>
+<h2 id="vivado-licence-configuration">Vivado Licence Configuration</h2>
+<p>Vivado requires a valid license for synthesis and implementation. The license manager, accessible through the Help menu in Vivado, facilitates the connection to Xilinx's licensing server. A node-locked license must be generated using the system's network interface MAC address. Once downloaded, the license file can be loaded through the license manager interface.</p>
+<h2 id="matlab-installation">MATLAB Installation</h2>
+<p>MATLAB R2021a installation follows a straightforward process using the installation media downloaded from MathWorks. The installation requires valid credentials and selection of an appropriate license. For the CASPER toolflow, the essential components include MATLAB base, Simulink, and the Signal Processing Toolbox. The installation directory should be set to a system-wide accessible location, typically /tools, with symbolic links created in /usr/local/bin for command-line access.</p>
+<h2 id="python-environment-setup">Python Environment Setup</h2>
+<p>The CASPER toolflow requires Python 3.8, as newer versions may introduce compatibility issues. Ubuntu 22.04 ships with Python 3.10 by default, necessitating the installation of Python 3.8 through the deadsnakes PPA repository. A virtual environment should be created specifically for CASPER development to isolate dependencies and prevent conflicts with system packages.</p>
+<p>The virtual environment requires python3.8-venv for creation and pip for package management. Essential build tools including build-essential and python3.8-dev must be installed to support the compilation of Python packages with C extensions.</p>
+<h2 id="casper-toolflow-configuration">CASPER Toolflow Configuration</h2>
+<p>The CASPER mlib_devel repository should be cloned from the official GitHub repository, specifically the m2021a branch for compatibility with MATLAB R2021a. The repository includes a requirements.txt file that specifies all necessary Python dependencies, which can be installed within the activated virtual environment.</p>
+<p>Configuration involves copying the startsg.local.example file to startsg.local and modifying it to reflect the correct installation paths for MATLAB, Vivado, and the Python virtual environment. These paths must be absolute and correctly point to the installation directories established in previous steps.</p>
+<h2 id="library-conflict-problem">Library Conflict Problem</h2>
+<p>A significant compatibility issue arises when launching MATLAB through the CASPER startsg script. The error manifests as a failure to load Simulink's built-in implementation library, specifically citing an undefined symbol <code>__gmpn_cnd_sub_n</code> in the system's libhogweed.so.6 library. This error prevents Simulink from functioning properly, with the GUI failing to display tool tabs and rendering the environment unusable for CASPER development.</p>
+<p>Investigation reveals that this issue stems from a library conflict between Xilinx's bundled version of libgmp.so.10 and the system's version. The Xilinx versions of this library, distributed with both Vivado and Model Composer, fail to define certain symbols required by Ubuntu's cryptographic libraries, which Simulink depends on for its GUI functionality.</p>
+<p>The resolution involves replacing all instances of Xilinx's libgmp.so.10 with the system's version. This requires locating all copies of the library within the Xilinx installation directory using a recursive find command. Typically, at least two instances exist: one in the Vivado subdirectory and another in the Model Composer subdirectory.</p>
+<p>Rather than deleting Xilinx's versions, which might be needed for debugging or rollback purposes, they should be moved to a subdirectory named 'exclude'. The system's version of libgmp.so.10, located at /lib/x86_64-linux-gnu/libgmp.so.10, should then be copied to replace each instance.</p>
+<p>This solution addresses the symbol resolution issue while maintaining the ability to restore the original configuration if needed. After implementing this fix, the CASPER toolflow can be launched successfully using the startsg script, with full Simulink functionality restored.</p>
+<h2 id="verification-and-testing">Verification and Testing</h2>
+<p>Successful installation can be verified by launching the toolflow by executing the ./startsg bash script from the mlib_devel directory. Simulink should open with full GUI functionality, and CASPER library blocks should be accessible and configurable. A simple test involves creating a model with CASPER blocks such as an FFT, setting parameters, and confirming that no xbsIndex_r4 errors occur.</p>
+<h2 id="additional-considerations">Additional Considerations</h2>
+<p>For systems with mixed performance cores, such as those with both P-cores and E-cores, process affinity can be managed using taskset to ensure Vivado synthesis and implementation processes utilize the faster cores. Remote desktop access can be configured using either the native Ubuntu remote desktop functionality or xrdp for enhanced flexibility.</p>
+<h2 id="concluding-remarks">Concluding Remarks</h2>
+<p>We were able to compile firmware with this toolflow and fixes but not take advantage of Simulink's digital design simulation functionality. Ultimately we switched to CASPER's Virtual Machine. My reccomendation to you is that you use exactly the OS specified in the <a href="https://casper-toolflow.readthedocs.io/en/latest/src/Installing-the-Toolflow.html">CASPER guide</a>. </p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../embedded/networking/" class="btn btn-neutral float-left" title="Networking"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../gateware-design/" class="btn btn-neutral float-right" title="Design Overview">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../../embedded/networking/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../gateware-design/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../wavedrom-init.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

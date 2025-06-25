@@ -4,23 +4,23 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <link rel="shortcut icon" href="../img/favicon.ico" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
     <title>Design Overview - Sparrow Albatros</title>
-    <link rel="stylesheet" href="../css/theme.css" />
-    <link rel="stylesheet" href="../css/theme_extra.css" />
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
-        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
-        <link href="../stylesheets/extra.css" rel="stylesheet" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="../../stylesheets/extra.css" rel="stylesheet" />
     
       <script>
         // Current page data
         var mkdocs_page_name = "Design Overview";
-        var mkdocs_page_input_path = "gateware-design.md";
+        var mkdocs_page_input_path = "gateware/gateware-design.md";
         var mkdocs_page_url = null;
       </script>
     
     <!--[if lt IE 9]>
-      <script src="../js/html5shiv.min.js"></script>
+      <script src="../../js/html5shiv.min.js"></script>
     <![endif]-->
       <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
@@ -34,9 +34,9 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
     <div class="wy-side-scroll">
       <div class="wy-side-nav-search">
-          <a href=".." class="icon icon-home"> Sparrow Albatros
+          <a href="../.." class="icon icon-home"> Sparrow Albatros
         </a><div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
       <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
   </form>
 </div>
@@ -44,27 +44,27 @@
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
-                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
                 </li>
               </ul>
               <p class="caption"><span class="caption-text">Embedded Software</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../data-collection/">Run the DAQ, collect data</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../embedded/data-collection/">Run the DAQ, collect data</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../tuning-the-gateware/">Tuning the gateware</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../embedded/tuning-the-gateware/">Tuning the gateware</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../digital-gain-coefficients-4bit/">Optimal Digital Gain Coefficients (4-bit)</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../embedded/digital-gain-coefficients-4bit/">Optimal Digital Gain Coefficients (4-bit)</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../dump-baseband/">Dumping baseband</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../embedded/dump-baseband/">Dumping baseband</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../dump-spectra/">Dumping correlated spectra</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../embedded/dump-spectra/">Dumping correlated spectra</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../networking/">Networking</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../embedded/networking/">Networking</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Gateware</span></p>
               <ul class="current">
-                  <li class="toctree-l1"><a class="reference internal" href="../installing-the-toolchain/">Installing the Toolchain</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../installing-the-toolflow/">Installing the Toolflow</a>
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="#">Design Overview</a>
     <ul class="current">
@@ -80,7 +80,7 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#requantization">Requantization</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#packetiser">Packetiser</a>
+    <li class="toctree-l2"><a class="reference internal" href="#payload-packetiser">Payload Packetiser</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#on-board-correlator">On-board correlator</a>
         <ul>
@@ -103,14 +103,29 @@
               </ul>
               <p class="caption"><span class="caption-text">Disk Images</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../installing-sparrow-albatros/">Installing Sparrow Albatros</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installing-sparrow-albatros/">Installing Sparrow Albatros</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Data Specification</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../data-baseband/">Baseband</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-baseband/">Baseband</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../data-correlated-spectra/">Correlated Spectra</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-correlated-spectra/">Correlated Spectra</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Thesis</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../thesis/ch1-thesis-overview/">Thesis Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../thesis/ch2-science-intro/">Science Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../thesis/ch3-albatros-experiment/">ALBATROS Experiment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../thesis/ch4-snap-readout/">SNAP Readout System</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../thesis/ch5-sparrow-readout/">Sparrow Readout System</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../thesis/ch6-field-results/">Field Results</a>
                   </li>
               </ul>
       </div>
@@ -120,13 +135,13 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
       <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="..">Sparrow Albatros</a>
+          <a href="../..">Sparrow Albatros</a>
         
       </nav>
       <div class="wy-nav-content">
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
           <li class="breadcrumb-item">Gateware</li>
       <li class="breadcrumb-item active">Design Overview</li>
     <li class="wy-breadcrumbs-aside">
@@ -152,7 +167,7 @@
 <p>The Simulink (Matlab) and CASPER framework abstracts away the nitty gritty plumbing inherent to modern (2025) FPGA programming in regular text-based HDLs. There are good, bad, and ugly things about this. </p>
 <p>The good: the user can jump right in and design, simulate, compile, implement, and synthesise a basic design targeted for supported hardware. The simulation aspect is worth emphasising because it's very easy to write a bug into logic design and it's often very hard to catch it without simulation. </p>
 <p>The bad: it is impossible to track small diffs with modern version control tools (git) between two commits because the .slx files, being diagramatic rather than text based, are big and stored in compressed binary format. </p>
-<p>The ugly side is that <a href="../installing-the-toolchain/">the toolchain</a> is very brittle and annoying to set up. You need a precise Ubuntu distribution, which means you can't just set it up on any linux machine without reinstalling the operating system and migrating all users to that new OS. Not to mention that you need to buy, install, set up and periodically renew licences for bulky (~300 GB), propriotary Xilinx (AMD) software (Vivado) and Matlab's Simulink software. </p>
+<p>The ugly side is that <a href="installing-the-toolchain.md">the toolchain</a> is very brittle and annoying to set up. You need a precise Ubuntu distribution, which means you can't just set it up on any linux machine without reinstalling the operating system and migrating all users to that new OS. Not to mention that you need to buy, install, set up and periodically renew licences for bulky (~300 GB), propriotary Xilinx (AMD) software (Vivado) and Matlab's Simulink software. </p>
 <p>Once you have the toolchain running and are ready to assemble your first design, you'll notice that there are many different types of color-coded block. </p>
 <ul>
 <li>The yellow (CASPER) blocks are IO bocks. They map hardware pins to logic, define user programmable BRAMS and registers</li>
@@ -179,7 +194,7 @@
 <p>A TVG enables the developer to mux in values from a user-writeable BRAM instead of the input. This module helps to test and debug gateware at both the simulation stage and in-Silica. The user controls whether to let actual data pass by writing to the <code>enable</code> register, and what data to replace it with by writing to the <code>data</code> BRAM. </p>
 <p><img alt="image" src="https://github.com/user-attachments/assets/b5756967-1c7b-4401-be73-cd9cb4c15e45" /></p>
 <h2 id="requantization">Requantization</h2>
-<p>After the PFB (and TVG), each FFT'd signal is split three ways. </p>
+<p>After the PFB (and TVG), each FFT'd signal branches three ways:</p>
 <ul>
 <li>The on-board correlator (skip ahead to the <a href="./#on-board-correlator">correlator section</a>)</li>
 <li>4-bit requantization</li>
@@ -195,10 +210,10 @@
     {"name": "clk", "wave": "p......"},
     {},
     {"name": "sync (4-bit)", "wave": "010...."},
-    {"name": "four-bit data", "wave": "x.=.=.=", "data": ["Channel 420", "Channel 421", "Ch 422"], "phase": 0},
+    {"name": "four-bit data", "wave": "x.4.4.4", "data": ["Channel 420", "Channel 421", "Ch 422"], "phase": 0},
     {},
     {"name": "sync (1-bit)", "wave": "0.10..."},
-    {"name": "one-bit data", "wave": "x..====", "data": ["420/1", "422/3", "424/5", "426/7"], "phase": 0}
+    {"name": "one-bit data", "wave": "x..4444", "data": ["420/1", "422/3", "424/5", "426/7"], "phase": 0}
   ],
   "config": {
     "hscale": 2,
@@ -217,38 +232,95 @@
 <p><img alt="image" src="https://github.com/user-attachments/assets/17cac276-9a76-438d-895c-24e5632b1e61" /></p>
 <p>In parallel we quantize each component (real/imaginary) of each frequency channel to four bits. To exploit the full range of bits excersised by 4-bit quantization we apply digital gain to each frequency channel individually. The gain in each channel is set by the user through the <code>coeffs_pol0</code>/<code>coeffs_pol1</code> registers. The result is saturated against a floor and ceiling of the 4-bit range (-/+0.875) to wrapping (overflow). This image shows the logic for one of four quantization signal paths is shown.</p>
 <p><img alt="image" src="https://github.com/user-attachments/assets/681d4e86-7b5c-44b6-9e64-b2f9b52ff31f" /></p>
-<h2 id="packetiser">Packetiser</h2>
-<p>The packetiser <em>TODO: explaim more</em></p>
+<h2 id="payload-packetiser">Payload Packetiser</h2>
+<p>The payload packetiser is a logical subsystem that creates payloads for the UDP packets which are broadcast over ethernet on SFP0. It bundles re-quantized data, either 1-bit or 4-bit quantized, with the spectrum number, which counts the number of FFTs which have been performed so that we can tell 1) whether we have dropped any UDP packets and 2) which UDP packets we have dropped. The logic that generates UDP packet headers and bundles these with our payloads is taken care of by a Xilinx IP. Our payload packetiser subsystem is directly upstream of this UDP packetiser logic and interfaces with it over three busses: data (8 bits wide), valid line (1 bit), end-of-frame line (EOF, 1 bit). Pull the valid line high simultaneously with valid data (data that you want to transmit) on your eight-lane bus, and low when the data on the data bus is trash. A UDP payload buffer fills up with valid data until you pull the end-of-frame line high simultaneously with the last valid data point. </p>
 <p><img alt="image" src="https://github.com/user-attachments/assets/d4f9f32a-99fe-4119-9472-fe3d81c45a14" /></p>
-<p>TODO: actual wavedrom diagram, below is dummy</p>
+<p><em>Caption: the payload packetizer subsystem is the white block labelled 'packetiser'. It has three input busses and three output busses, but it also takes input from readable and writable registers hidden beneath the subsystem mask.</em></p>
+<p>For example, lets say we have one bit data and the only channels we care about are 420 through 427 inclusive, the timing diagram at the input of the payload packetiser, as we saw above in the requantization section, looks something like the following. </p>
 <script type="WaveDrom">
 {
   "signal": [
-    {"name": "clk", "wave": "p.....|..."},
-    {"name": "dat", "wave": "x.345x|=.x", "data": ["head", "body", "tail", "data"]},
-    {"name": "req", "wave": "0.1..0|1.0"},
-    {},
-    {"name": "ack", "wave": "1.....|01."}
-  ]
+    {"name": "clk", "wave": "p......"},
+    {"name": "data", "wave": "xx4444x", "data": ["420/1", "422/3", "424/5", "426/7"]},
+    {"name": "sync", "wave": "010...."},
+  ],
+  "config": {
+    "hscale": 2,
+    "skin": "narrow"
+  },
+  "head": {
+    "text": "Payload Packetiser Upstream"
+  },
+  "foot": {
+    "text": "Timing diagram upstream of payload packetiser."
+  }
 }
 </script>
 
-<p>blah blih blough</p>
+<p>The sync pulse is only generated once and the logic is synchronised only once, so every subsequent input will have only the data line with anything of interest on it. The downstream logic knows to expect the pattern to repeat every 2048 clocks. The timing diagram downstream of the payload packetiser looks alternatively like either of the following three diagrams. </p>
+<script type="WaveDrom">
+{
+  "signal": [
+      {"name": "clk", "wave": "p......"},
+    ["First",
+      {"name": "data", "wave": "x333344", "data": ["Spec#","Spec#","Spec#","Spec#", "420/1", "422/3"]},
+      {"name": "valid", "wave": "01....."},
+      {"name": "EOF", "wave": "0......"},
+    ],
+    ["Middle",
+      {"name": "data", "wave": "x4444xx", "data": ["420/1", "422/3","424/5", "426/7"]},
+      {"name": "valid", "wave": "01...0."},
+      {"name": "EOF", "wave": "0......"},
+    ],
+    ["Final",
+      {"name": "data", "wave": "x4444xx", "data": ["420/1", "422/3","424/5", "426/7"]},
+      {"name": "valid", "wave": "01...0."},
+      {"name": "EOF", "wave": "0...10."},
+    ]
+
+  ],
+  "config": {
+    "hscale": 2,
+    "skin": "narrow"
+  },
+  "head": {
+    "text": "Payload Packetiser Downstream"
+  },
+}
+</script>
+
+<p>User facing registers tell the packetiser 1) how many FFT frames go into each packet and 2) how many clocks the valid pulse should last on each frame--which is directly related to the number of channels we want to preserve. Lets take a closer look at the logic that accomplishes the generation and pulsing.  </p>
 <p><img alt="image" src="https://github.com/user-attachments/assets/7c499f13-fe07-4ca6-aa7e-0b83687c7edd" /></p>
-<p>Lorum</p>
+<p>The sync and reset lines trigger a reset of the FFT-frame (/spectrum) counter, "spectra-counter". This counter is a UFix 43 bit counter, the most significant 32-bits are sliced and bussified onto a byte-wide bus. These four bytes populate the first four bytes of each UDP packet payload. This spectrum number is written to disk as per specified in our data format [need link to data format spec]. The 11th LSB is also sliced out and used to trigger a "new spectra" pulse. This pulse which anounces a new FFT-frame or "spectrum" is multi-purposes, it: </p>
+<ul>
+<li>synchronises the 32-bit spectrum number bussifier (so that the bits come out in sync with the first valid data point)  </li>
+</ul>
 <p><img alt="image" src="https://github.com/user-attachments/assets/84a8d566-3856-4534-b621-6db6178840a4" /></p>
-<p>Ipsum</p>
-<p><img alt="image" src="https://github.com/user-attachments/assets/8282f16c-8bed-42e3-9695-06b7bc48a5c7" /></p>
-<p>Comunitatus</p>
+<ul>
+<li>increments another counter, "packet_spec_counter", by one which, in turn,  <ul>
+<li>triggers the valid line on the first spectrum of the packet to include the spectrum number</li>
+<li>triggers the end-of-frame line on the last spectrum of the packet to tell the UDP packetizer to bundle and send the buffered payload. The user sets the spectra per packet from python by writing an integer to the (above) yellow "spectra_per_packet" register. </li>
+</ul>
+</li>
+</ul>
 <p><img alt="image" src="https://github.com/user-attachments/assets/e536e121-464c-4b61-8093-ad520ceb6ea3" /></p>
-<p>Once the data has been packetized, it goes into the <code>one_gbe</code> block, and the CASPER framework takes care of the plumbing to pipe this into the correct Xilinx IP that implements UDP packetizing, and routs it to the correct physical SFP port (SFP0). In the image, a helpful user-readable buffer-overflow counter <code>tx_of_cnt</code> keeps track of overflowing packets, and the signal coming out of our user-defined packetizer also routs <em>in simulation only</em> to a virtual oscilascope.</p>
+<ul>
+<li>triggers a pulse-extender that pulls high the valid line for the number of clocks required to for each spectrum. The user sets the number of bytes in each spectrum by writing said value into the (above) yellow "bytes_per_spectrum" register. The number of bytes in each spectrum is a function of the number of channels saved as well as the re-quantization depth (4+4 bits vs 1+1 bit per sample). </li>
+</ul>
+<p><img alt="image" src="https://github.com/user-attachments/assets/8282f16c-8bed-42e3-9695-06b7bc48a5c7" /></p>
+<p>Once the data is packetized, it's checked into the <code>one_gbe</code> block, and the CASPER framework takes care of the plumbing to pipe this into the correct Xilinx IP that implements UDP packetizing, and routs it to the correct physical SFP port (SFP0). In the image, a helpful user-readable buffer-overflow counter <code>tx_of_cnt</code> keeps track of overflowing packets, and the signal coming out of our user-defined packetizer also routs <em>in simulation only</em> to a virtual oscilascope.</p>
 <p><img alt="image" src="https://github.com/user-attachments/assets/81af2f1e-c9aa-4a68-b5d5-fb50447d2e5a" /></p>
 <h2 id="on-board-correlator">On-board correlator</h2>
-<p>The signal path branches after the FFT. In the previous section we looked at re-quantization, data selection, and UDP packetizing, here we look at the second branch down-stream of the FFT: the on board correlator (OBC). The OBC computes the auto and cross correlations of the two digital signals it has access to. The power in each pol is computed with a simple accumulator. Real and imaginary components of the cross correlation are similarly calculated. The result is dumped periodically into addressable BRAM registers <code>pol00</code>, <code>pol11</code>, <code>pol01r</code>, <code>pol01i</code>. 
-<img alt="image" src="https://github.com/user-attachments/assets/b76d2983-9580-4acd-8d1c-ef4f29060695" /></p>
+<p>The signal path branches after the FFT. In the previous section we looked at re-quantization, data selection, and UDP packetizing, here we look at the second branch down-stream of the FFT: the correlator. The correlator computes auto- and cross-correlations of both channelized signals. The power in each pol is computed with a simple accumulator. Real and imaginary components of the cross correlation are similarly calculated. The result is dumped periodically into addressable BRAM registers <code>pol00</code>, <code>pol11</code>, <code>pol01r</code>, <code>pol01i</code>. Mathematically, the correlator computes autocorrelations, </p>
+<div class="arithmatex">\[P_{00}[k] = \sum_{l=0}^{N-1}|y_0[k,l]|^2,\]</div>
+<p>and cross correlations,</p>
+<div class="arithmatex">\[P_{01}[k] = \sum_{l=0}^{N-1}y_0[k,l] \cdot y_1[k,l]^\ast,\]</div>
+<p>where <span class="arithmatex">\(y_s[k,l]\)</span> is the <span class="arithmatex">\(l\)</span>'th spectrum's <span class="arithmatex">\(k\)</span>'th frequency channel's data from pol-<span class="arithmatex">\(s\)</span>. Real and imaginary terms of the cross-correlations are accumulated in seperate BRAMs as all the arithmetic is carried out on real integers. </p>
+<p><img alt="image" src="https://github.com/user-attachments/assets/b76d2983-9580-4acd-8d1c-ef4f29060695" /></p>
 <h3 id="correlator-accumulator-book-keeping">Correlator accumulator book-keeping</h3>
-<p>It's important to do some book-keeping to make sure the correlator BRAMs won't overflow. If the signal is <code>U37_36</code> and the accumulator BRAM is <code>U64_35</code> then we can only accumulate <code>2^28</code> samples samples (per channel), in seconds the accumulator BRAM fills up in <code>2^28*4096/250e6 = 4398</code> seconds, which is over an hour. We will never want to accumulate more than a few seconds. </p>
+<p>It's important to do some book-keeping to make sure the correlator BRAMs don't overflow. If the signal is <code>U37_36</code> and the accumulator BRAM is <code>U64_35</code> then we can only accumulate <code>2^28</code> samples samples (per channel), in seconds the accumulator BRAM fills up in <code>2^28*4096/250e6 = 4398</code> seconds, which is over an hour. We will never want to accumulate more than a few seconds. </p>
 <p>However, the calculus changes if we implement FFT bit-growth to avoid doing a full shift schedule. If we grow the data by one bit on every FFT butterfly stage we're eating up 12 bits, which means that it becomes logically possible for the accumulator BRAMs to overflow after only one second, which is unacceptable. This means we either have to grow our BRAMs or do something to reduce the bit depth of these numbers. </p>
+<p>The latest version of the firmware implements 8-bits of bitgrowth, the full twelve is not needed as our 12 bit data is already LSB-padded by four bits in the stack-and-sum stage of the PFB (upstream of the FFT). After eight bits of growth in the FFT the data is 24 bits wide; four LSBs are sliced off in the correlator branch so that it fits snugly in the correlator's accumulators. </p>
 <h2 id="user-readwriteable-registers">User read/writeable registers</h2>
 <p>We make use of all named addressable registers in this design so it's worth knowing what each of them does. (The left-pointing pentagonal tags mean <em>goto</em> and are paired with right-pointing ones of the same name.)</p>
 <ul>
@@ -278,11 +350,15 @@
 <p><img alt="image" src="https://github.com/user-attachments/assets/965644f1-5e7f-4e35-bacd-4cbea44bc282" /></p>
 <p><code>tvg16bit_enable</code> enables the the TVG right after the 4bit requantization stage. Write 0 to pass actual data, 1 to pass values read sequentially from the BRAM labelled <code>data</code>. </p>
 <p><img alt="image" src="https://github.com/user-attachments/assets/92f41e80-d411-49e6-a489-9bc1cd704244" /></p>
-<p><code>four_bit_quant_clip_count</code> <em>TODO</em></p>
+<p><code>four_bit_quant_clip_count</code> is a readable register that counts the amount of four-bit clipping events. It increments by one when one of the four re/im pol0/pol1 values saturates four bit re-quantizer. </p>
 <p><img alt="image" src="https://github.com/user-attachments/assets/61d9f33b-769a-4a5d-a905-d28dbd13ec01" /></p>
-<p><code>spectra_per_packet</code> <em>TODO</em></p>
+<p><code>spectra_per_packet</code> specifies the amount of spectra to include in each UDP packet. We're not using jumbo frames so we limit the spectra per packet to a number small enough for regular ethernet UDP frames. This register is written to at the tuning stage. The register holds an unsigned 32 bit integer, but only the five least significant bits are used. </p>
+<pre><code class="language-python">MTU=1500 # max number of bytes in a packet
+assert spectra_per_packet &lt; (1&lt;&lt;5), &quot;spec-per-pack too large for slice, aborting&quot;
+assert spectra_per_packet * bytes_per_spectrum &lt;= MTU-8, &quot;Packets too large, will cause fragmentation&quot;
+</code></pre>
 <p><img alt="image" src="https://github.com/user-attachments/assets/ce1b0a74-604e-4658-a7f9-52226a5e6038" /></p>
-<p><code>bytes_per_spectrum</code> <em>TODO</em></p>
+<p><code>bytes_per_spectrum</code> </p>
 <p><img alt="image" src="https://github.com/user-attachments/assets/8a3a2dc9-285b-496d-9a9a-5f2839976327" /></p>
 <p><code>tx_of_cnt</code> <em>TODO</em></p>
 <p><img alt="image" src="https://github.com/user-attachments/assets/63ea5bae-0e51-4440-b4ee-a6fb8e3c42be" /></p>
@@ -448,7 +524,7 @@ if __name__==&quot;__main__&quot;:
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../installing-the-toolchain/" class="btn btn-neutral float-left" title="Installing the Toolchain"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../installing-the-toolflow/" class="btn btn-neutral float-left" title="Installing the Toolflow"><span class="icon icon-circle-arrow-left"></span> Previous</a>
         <a href="../fft-note/" class="btn btn-neutral float-right" title="Note on FFT Implementation">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
@@ -472,20 +548,20 @@ if __name__==&quot;__main__&quot;:
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../installing-the-toolchain/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../installing-the-toolflow/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
       <span><a href="../fft-note/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
-    <script src="../js/jquery-3.6.0.min.js"></script>
-    <script>var base_url = "..";</script>
-    <script src="../js/theme_extra.js"></script>
-    <script src="../js/theme.js"></script>
-      <script src="../wavedrom-init.js"></script>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../wavedrom-init.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-      <script src="../search/main.js"></script>
+      <script src="../../search/main.js"></script>
     <script>
         jQuery(function () {
             SphinxRtdTheme.Navigation.enable(true);

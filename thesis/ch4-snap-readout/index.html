@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>SNAP Readout System - Sparrow Albatros</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="../../stylesheets/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "SNAP Readout System";
+        var mkdocs_page_input_path = "thesis/ch4-snap-readout.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/c.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Sparrow Albatros
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Embedded Software</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../embedded/data-collection/">Run the DAQ, collect data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../embedded/tuning-the-gateware/">Tuning the gateware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../embedded/digital-gain-coefficients-4bit/">Optimal Digital Gain Coefficients (4-bit)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../embedded/dump-baseband/">Dumping baseband</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../embedded/dump-spectra/">Dumping correlated spectra</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../embedded/networking/">Networking</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Gateware</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../gateware/installing-the-toolflow/">Installing the Toolflow</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../gateware/gateware-design/">Design Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../gateware/fft-note/">Note on FFT Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../gateware/gateware-modify-simulate/">Modify and Simulate</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../gateware/gateware-compile-synthesize-implement/">Compile, Synthesize, Implement</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Disk Images</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installing-sparrow-albatros/">Installing Sparrow Albatros</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Data Specification</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-baseband/">Baseband</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-correlated-spectra/">Correlated Spectra</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Thesis</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../ch1-thesis-overview/">Thesis Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ch2-science-intro/">Science Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ch3-albatros-experiment/">ALBATROS Experiment</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">SNAP Readout System</a>
+    <ul class="current">
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ch5-sparrow-readout/">Sparrow Readout System</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ch6-field-results/">Field Results</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Sparrow Albatros</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Thesis</li>
+      <li class="breadcrumb-item active">SNAP Readout System</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="smart-network-adc-processor-readout-system">Smart Network ADC Processor Readout System</h1>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../ch3-albatros-experiment/" class="btn btn-neutral float-left" title="ALBATROS Experiment"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../ch5-sparrow-readout/" class="btn btn-neutral float-right" title="Sparrow Readout System">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../ch3-albatros-experiment/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../ch5-sparrow-readout/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../wavedrom-init.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

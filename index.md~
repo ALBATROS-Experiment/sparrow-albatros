@@ -1,6 +1,6 @@
 # Sparrow Albatros 
 
-This repository serves three purpouses. The first is to house and version control **embedded software** that runs on the Sparrow's ARM's processor. The second is to house and version control **gateware** that runs on the Sparrow's FPGA. The third is to store and checkpoint **disk-images** of the OS that run the data acquisition software. The embedded software mates with the gateware, so it's conveniant to track them in the same repository. 
+[This repository](https://github.com/alBATROS-Experiment/sparrow-albatros/) serves three purpouses. The first is to house and version control **embedded software** that runs on the Sparrow's ARM's processor. The second is to house and version control **gateware** that runs on the Sparrow's FPGA. The third is to store and checkpoint **disk-images** of the OS that run the data acquisition software. The embedded software mates with the gateware, so it's conveniant to track them in the same repository. 
 
 ## Embedded software
 
@@ -13,6 +13,6 @@ The digital signal processing logic, or 'gateware', runs on the Sparrow's Zync x
 
 ## Disk Images
 
-Disk images of the Ubuntu18 operating system and file-system running on the ARM core are tracked in this repository. We use git-lfs and exclude them from downloading by default as they are each about 2GB large. By tracking disk images here we can recreate a bit-accurate release of sparrow-albatros without *relying on anything outside of this repository*--a version controler's wet-dream. 
+Disk images of the Ubuntu18 operating system and file-system running on the ARM core are tracked in this repository. We use git-lfs and exclude them from downloading by default as they are each about 2GB large. By tracking disk images here we can recreate a bit-accurate release of sparrow-albatros without *relying on anything outside of this repository*.
 
 
