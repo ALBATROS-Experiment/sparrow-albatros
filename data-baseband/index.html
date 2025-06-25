@@ -176,10 +176,10 @@
 <li>Packets are transmitted over UDP to a receiving computer</li>
 <li>The <code>dump_baseband</code> utility captures these packets and writes them to disk</li>
 </ol>
-<p>For details on the baseband data collection process see the <a href="dump-baseband.md">Embedded Software/Dumping Baseband</a> page.</p>
+<p>For details on the baseband data collection process see the <a href="../embedded/dump-baseband/">Embedded Software/Dumping Baseband</a> page.</p>
 <h2 id="baseband-data-format">Baseband Data Format</h2>
 <h3 id="packetization-and-limitations">Packetization and Limitations</h3>
-<p>As described in the <a href="gateware-design.md#packetiser">gateware design overview</a>, the baseband data is packetized in the FPGA before transmission. The packetization process imposes some limitations on the data, particularly for 1-bit mode:</p>
+<p>As described in the <a href="../gateware/gateware-design/#packetiser">gateware design overview</a>, the baseband data is packetized in the FPGA before transmission. The packetization process imposes some limitations on the data, particularly for 1-bit mode:</p>
 <ul>
 <li>Data is bussified onto an 8-bit bus before packetization</li>
 <li>For 4-bit data (4 bits real + 4 bits imaginary for each polarization), this fundamentally limits us to 1024 of 2048 channels</li>

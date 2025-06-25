@@ -1,7 +1,7 @@
 
 # Modify and Simulate
 
-Once you've got the [toolchain](./installing-the-toolchain.md) up and running on a beefy computer, you'll be ready to modify and simulate the Sparrow Albatros spectrometer design.
+Once you've got the [toolflow](./installing-the-toolflow.md) up and running on a beefy computer, you'll be ready to modify and simulate the Sparrow Albatros spectrometer design.
 
 ## Modify the design
 
