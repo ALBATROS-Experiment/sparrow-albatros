@@ -1,2 +1,0 @@
-# Sparrow Readout System
-
